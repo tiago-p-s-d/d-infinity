@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "tMsfcImJooQ=",
+  "success": true,
+  "projectFilePath": "/home/tiago/Desktop/d-infinity/backend/Api/Api.csproj",
+  "expectedPackageFiles": [
+    "/home/tiago/.nuget/packages/microsoft.aspnetcore.openapi/10.0.0/microsoft.aspnetcore.openapi.10.0.0.nupkg.sha512",
+    "/home/tiago/.nuget/packages/microsoft.openapi/2.0.0/microsoft.openapi.2.0.0.nupkg.sha512",
+    "/home/tiago/.nuget/packages/microsoft.aspnetcore.app.ref/10.0.0/microsoft.aspnetcore.app.ref.10.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
