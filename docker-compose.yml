@@ -12,17 +12,22 @@ services:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
+
   backend:
     build: ./backend/Api
     container_name: d-infinity-back
     volumes:
-      - ./backend/Api:/app 
+      - ./backend/Api:/app
+      - /app/bin
+      - /app/obj
+      - ~/.nuget/packages:/root/.nuget/packages
     ports:
       - "5000:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     depends_on:
       - db
+
   frontend:
     build: ./frontend
     container_name: d-infinity-front
