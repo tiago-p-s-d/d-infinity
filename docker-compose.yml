@@ -2,6 +2,8 @@ services:
   db:
     image: mysql:8.0
     container_name: d-infinity-db
+    networks:
+      - d-infinity-net
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: db_infinity
@@ -16,6 +18,8 @@ services:
   backend:
     build: ./backend/Api
     container_name: d-infinity-back
+    networks:
+      - d-infinity-net
     volumes:
       - ./backend/Api:/app
       - /app/bin
@@ -25,12 +29,15 @@ services:
       - "5000:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=db;Database=d_infinity_db;Uid=root;Pwd=db_infinity;
     depends_on:
       - db
 
   frontend:
     build: ./frontend
     container_name: d-infinity-front
+    networks:
+      - d-infinity-net
     volumes:
       - ./frontend:/app 
       - /app/node_modules 
@@ -39,3 +46,7 @@ services:
 
 volumes:
   db_data:
+
+networks:
+  d-infinity-net:
+    driver: bridge
