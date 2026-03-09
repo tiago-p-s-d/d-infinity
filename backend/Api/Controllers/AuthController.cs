@@ -7,6 +7,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.ComponentModel.DataAnnotations;
 
 namespace Api.Controllers;
 
@@ -20,25 +21,25 @@ public class AuthController(AppDbContext context, IConfiguration config) : Contr
 
 
     [HttpPost("register")]
-public async Task<IActionResult> Register([FromBody] RegisterDto request)
-{
-    if (await _context.Usuarios.AnyAsync(u => u.Email == request.Email))
+    public async Task<IActionResult> Register([FromBody] RegisterDto request)
     {
-        return BadRequest(new { message = "Este e-mail já está cadastrado." });
+        if (await _context.Usuarios.AnyAsync(u => u.Email == request.Email))
+        {
+            return BadRequest(new { message = "Este e-mail já está cadastrado." });
+        }
+
+        var novoUsuario = new Usuario
+        {
+            Nome = request.Nome,
+            Email = request.Email,
+            SenhaHash = BCrypt.Net.BCrypt.HashPassword(request.Senha)
+        };
+
+        _context.Usuarios.Add(novoUsuario);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Usuário criado com sucesso!" });
     }
-
-    var novoUsuario = new Usuario
-    {
-        Nome = request.Nome,
-        Email = request.Email,
-        SenhaHash = BCrypt.Net.BCrypt.HashPassword(request.Senha)
-    };
-
-    _context.Usuarios.Add(novoUsuario);
-    await _context.SaveChangesAsync();
-
-    return Ok(new { message = "Usuário criado com sucesso!" });
-}
 
 
 
@@ -48,7 +49,7 @@ public async Task<IActionResult> Register([FromBody] RegisterDto request)
 
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] RegisterDto request)
+    public async Task<IActionResult> Login([FromBody] LoginDto request)
     {
         var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == request.Email);
         if (usuario == null)
@@ -65,7 +66,6 @@ public async Task<IActionResult> Register([FromBody] RegisterDto request)
         {
             new Claim(ClaimTypes.Name, usuario.Nome),
             new Claim(ClaimTypes.Email, usuario.Email),
-            new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString())
         };
 
         var token = new JwtSecurityToken(
@@ -84,9 +84,19 @@ public async Task<IActionResult> Register([FromBody] RegisterDto request)
 
 public class RegisterDto
 {
-    public required string Nome { get; set; }
+    public required string Nome { get; set; } 
+    
+    [EmailAddress]
     public required string Email { get; set; }
-    public required string Senha { get; set; }
 
+    [MinLength(3)]
+    public required string Senha { get; set; }
 }
 
+public class LoginDto
+{
+    [EmailAddress]
+    public required string Email { get; set; }
+
+    public required string Senha { get; set; }
+}
