@@ -1,0 +1,19 @@
+.dashboard-layout {
+  display: flex;
+  background-color: #121212;
+  min-height: 100vh;
+
+  .dashboard-content {
+    margin-left: 260px; // Espaço da Sidebar
+    padding: 2rem;
+    width: 100%;
+
+    .content-header {
+      margin-bottom: 2.5rem;
+      h1 { color: #fff; font-size: 2rem; }
+      p { color: #888; }
+    }
+  }
+}
+
+

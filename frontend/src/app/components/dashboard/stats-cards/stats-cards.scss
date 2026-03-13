@@ -1,0 +1,21 @@
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+
+  .stat-card {
+    background: #1e1e1e;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #333;
+    
+    .label { color: #aaa; font-size: 0.85rem; text-transform: uppercase; }
+    .value { color: #fff; font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0; }
+    .trend { color: #28a745; font-size: 0.8rem; }
+    .status-dot { 
+        width: 10px; height: 10px; background: #28a745; 
+        border-radius: 50%; display: inline-block; 
+    }
+  }
+}

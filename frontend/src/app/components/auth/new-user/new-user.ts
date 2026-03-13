@@ -20,9 +20,9 @@ userForm: FormGroup;
     private router: Router
   ) {
     this.userForm = this.fb.group({
-      nome: ['', [Validators.required, Validators.minLength(2)]],
+      name: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
-      senha: ['', [Validators.required, Validators.minLength(3)]]
+      password: ['', [Validators.required, Validators.minLength(3)]]
     });
   }
 

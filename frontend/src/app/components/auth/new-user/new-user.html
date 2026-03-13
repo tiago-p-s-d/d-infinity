@@ -6,7 +6,7 @@
     <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
         <label>Full Name</label>
-        <input type="text" formControlName="nome" placeholder="Enter your name">
+        <input type="text" formControlName="name" placeholder="Enter your name">
       </div>
 
       <div class="form-group">
@@ -16,7 +16,7 @@
 
       <div class="form-group">
         <label>Password</label>
-        <input type="password" formControlName="senha" placeholder="At least 3 characters">
+        <input type="password" formControlName="password" placeholder="At least 3 characters">
       </div>
 
       <button type="submit" [disabled]="userForm.invalid">Register</button>

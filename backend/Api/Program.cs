@@ -1,6 +1,8 @@
 using Api.Data;
 using Microsoft.EntityFrameworkCore;
-
+using System.IdentityModel.Tokens.Jwt;
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.Clear();
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
