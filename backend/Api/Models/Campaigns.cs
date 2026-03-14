@@ -14,7 +14,5 @@ public class Campaign
     [Column("campaign_name")]
     public required string CampaignName { get; set; }
 
-    public virtual ICollection<User> DungeonMasters { get; set; } = new List<User>();
-
-    public virtual ICollection<User> Players { get; set; } = new List<User>();
+    public virtual ICollection<CampaignUser> CampaignMembers { get; set; } = [];
 }

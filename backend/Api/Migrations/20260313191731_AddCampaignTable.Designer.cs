@@ -3,6 +3,7 @@ using Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260313191731_AddCampaignTable")]
+    partial class AddCampaignTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,36 +43,6 @@ namespace Api.Migrations
                     b.ToTable("campaigns");
                 });
 
-            modelBuilder.Entity("Api.Models.CampaignUser", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id_usr_cmpg");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CampaignId")
-                        .HasColumnType("int")
-                        .HasColumnName("id_campaign");
-
-                    b.Property<bool>("IsDm")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("is_dm");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int")
-                        .HasColumnName("id_user");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CampaignId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("campaign_users");
-                });
-
             modelBuilder.Entity("Api.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -78,6 +51,12 @@ namespace Api.Migrations
                         .HasColumnName("id");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CampaignId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CampaignId1")
+                        .HasColumnType("int");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -96,31 +75,29 @@ namespace Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CampaignId");
+
+                    b.HasIndex("CampaignId1");
+
                     b.ToTable("users");
                 });
 
-            modelBuilder.Entity("Api.Models.CampaignUser", b =>
+            modelBuilder.Entity("Api.Models.User", b =>
                 {
-                    b.HasOne("Api.Models.Campaign", "Campaign")
-                        .WithMany("CampaignMembers")
-                        .HasForeignKey("CampaignId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("Api.Models.Campaign", null)
+                        .WithMany("DungeonMasters")
+                        .HasForeignKey("CampaignId");
 
-                    b.HasOne("Api.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Campaign");
-
-                    b.Navigation("User");
+                    b.HasOne("Api.Models.Campaign", null)
+                        .WithMany("Players")
+                        .HasForeignKey("CampaignId1");
                 });
 
             modelBuilder.Entity("Api.Models.Campaign", b =>
                 {
-                    b.Navigation("CampaignMembers");
+                    b.Navigation("DungeonMasters");
+
+                    b.Navigation("Players");
                 });
 #pragma warning restore 612, 618
         }

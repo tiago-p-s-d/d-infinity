@@ -1,0 +1,34 @@
+<div class="setup-page-container">
+  <div class="form-container">
+    <h2>Configure your Adventure</h2>
+    
+    @if (campaignForm) {
+      <form [formGroup]="campaignForm" (ngSubmit)="onSubmit()">
+        <div class="field">
+          <label>Campaign Name</label>
+          <input type="text" formControlName="name">
+        </div>
+
+        <div class="field">
+          <label>System</label>
+          <select formControlName="system">
+            @for (s of systems; track s) {
+              <option [value]="s">{{ s }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field">
+          <label>About</label>
+          <textarea formControlName="about"></textarea>
+        </div>
+
+        <div class="actions">
+          <button type="submit" [disabled]="campaignForm.invalid" class="btn-primary">
+            Initialize Campaign
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+</div>
