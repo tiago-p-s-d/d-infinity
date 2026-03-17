@@ -3,7 +3,12 @@ import { CampaignService } from '../../services/campaign/campaign.service';
 import { Router } from '@angular/router';
 import { Auth } from '../../services/auth/auth';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { SystemService } from '../../services/gameplay/systems/system-service';
 
+interface SystemModel {
+  id: number;
+  name: string;
+}
 
 @Component({
   selector: 'app-start-your-own',
@@ -13,21 +18,31 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 })
 export class StartYourOwn implements OnInit {
   campaignForm!: FormGroup;
-  systems = ['D&D 5e', 'Pathfinder 2e', 'Custom'];
+  systems: SystemModel[] = [];
 
   constructor(
     private fb: FormBuilder,
     private auth: Auth,
     private campaignService: CampaignService,
+    private systemService: SystemService,
     private router: Router
   ) { }
 
   ngOnInit() {
+    this.systemService.getSystems().subscribe({
+      next: (data) => {
+        this.systems = data;
+        if (this.systems.length > 0) {
+          this.campaignForm.patchValue({ system: this.systems[0].id });
+        }
+      },
+      error: (err) => console.error(err)
+    });
     this.auth.user$.subscribe(user => {
       this.campaignForm = this.fb.group({
         name: [`${user?.name || 'My'}'s Campaign`, [Validators.required]],
         about: ['', [Validators.maxLength(500)]],
-        system: ['D&D 5e', [Validators.required]]
+        system: [null, [Validators.required]]
       });
     });
   }

@@ -5,13 +5,18 @@ import { Router, RouterModule } from '@angular/router';
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterModule],
+  imports: [ RouterModule],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
 })
 export class Sidebar {
-  constructor(private router: Router) { }
+  showCreateModal = false;
 
+  constructor(private router: Router) {}
+
+  handleCreation(type: string) {
+
+  }
   onLogout() {
     localStorage.removeItem('token');
     this.router.navigate(['/login']);

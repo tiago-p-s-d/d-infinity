@@ -1,0 +1,97 @@
+<div class="systems-page">
+  <app-header></app-header>
+
+  <main class="systems-container">
+    @if (isAdding) {
+      <section class="form-section">
+        <header class="section-header">
+          <h2>New System Configuration</h2>
+          <p>Link your content packs to create a unique rule engine.</p>
+        </header>
+
+        <form [formGroup]="systemForm" (ngSubmit)="onSubmit()" class="create-form">
+          <div class="full-field">
+            <label>System Name</label>
+            <input type="text" formControlName="name" placeholder="Ex: Epic Fantasy 5e">
+          </div>
+
+          <div class="grid-form">
+            <div class="field">
+              <label>Character Sheet ID</label>
+              <input type="number" formControlName="characterSheetId">
+            </div>
+            <div class="field">
+              <label>Items Pack ID</label>
+              <input type="number" formControlName="itemsId">
+            </div>
+            <div class="field">
+              <label>Spells Pack ID</label>
+              <input type="number" formControlName="spellsId">
+            </div>
+            <div class="field">
+              <label>Skills Pack ID</label>
+              <input type="number" formControlName="skillsId">
+            </div>
+            <div class="field">
+              <label>Maps Pack ID</label>
+              <input type="number" formControlName="mapsId">
+            </div>
+            <div class="field">
+              <label>Currency ID</label>
+              <input type="number" formControlName="currencyId">
+            </div>
+            <div class="field">
+              <label>Races Pack ID</label>
+              <input type="number" formControlName="racesId">
+            </div>
+            <div class="field">
+              <label>Classes Pack ID (Optional)</label>
+              <input type="number" formControlName="classesId">
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" [disabled]="systemForm.invalid" class="btn-save">
+              Finalize System
+            </button>
+          </div>
+        </form>
+      </section>
+    }
+
+    <section class="list-section">
+      <div class="section-header list-header-flex">
+        <div class="title-text">
+        <h2>Your Systems</h2>
+        <p>Manage and edit your existing game rules.</p>
+        </div>
+        <button class="btn-primary" (click)="isAdding = !isAdding">
+            {{ isAdding ? 'Cancel' : '+ Create New System' }}
+        </button>
+    </div>
+
+      @if (systems.length === 0) {
+        <div class="empty-state">
+          <p>You haven't created any systems yet.</p>
+        </div>
+      } @else {
+        <div class="systems-grid">
+          @for (s of systems; track s.id) {
+            <div class="system-card">
+              <div class="card-body">
+                <h3>{{ s.name }}</h3>
+                <div class="stats-mini">
+                  <span>Races: {{ s.racesId }}</span>
+                  <span>Spells: {{ s.spellsId }}</span>
+                </div>
+              </div>
+              <div class="card-footer">
+                <button class="btn-edit">Configure</button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </section>
+  </main>
+</div>
