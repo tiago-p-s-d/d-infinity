@@ -24,4 +24,10 @@ public class MapModel
     [ForeignKey("CampaignId")]
 
     public virtual Campaign? Campaign { get; set; } 
+
+    [Column("created_by")]
+    public int CreatedBy { get; set; }
+
+    [ForeignKey("CreatedBy")]
+    public User? Creator { get; set; }
 }

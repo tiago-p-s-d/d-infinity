@@ -19,4 +19,10 @@ public class Race
 
     [Column("modifiers", TypeName = "json")]
     public string Modifiers { get; set; } = "{}";
+
+    [Column("created_by")]
+    public int CreatedBy { get; set; }
+
+    [ForeignKey("CreatedBy")]
+    public User? Creator { get; set; }
 }

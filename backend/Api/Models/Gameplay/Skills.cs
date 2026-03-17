@@ -22,4 +22,10 @@ public class Skill
     /// </summary>
     [Column("effect", TypeName = "json")]
     public string Effect { get; set; } = "{}";
+    
+    [Column("created_by")]
+    public int CreatedBy { get; set; }
+
+    [ForeignKey("CreatedBy")]
+    public User? Creator { get; set; }
 }

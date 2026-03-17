@@ -25,4 +25,10 @@ public class Item
 
     [Column("ac")]
     public int? AC { get; set; }
+
+    [Column("created_by")]
+    public int CreatedBy { get; set; }
+
+    [ForeignKey("CreatedBy")]
+    public User? Creator { get; set; }
 }

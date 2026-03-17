@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Api.Models.Gameplay;
 
 [Table("systems")]
-public class SystemModel 
+public class SystemModel
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -35,6 +35,12 @@ public class SystemModel
 
     [Column("races_id")]
     public int RacesId { get; set; }
+
+    [Column("created_by")]
+    public int CreatedBy { get; set; }
+
+    [ForeignKey("CreatedBy")]
+    public User? Creator { get; set; }
 
     //(Nullable)
     [Column("classes_id")]
