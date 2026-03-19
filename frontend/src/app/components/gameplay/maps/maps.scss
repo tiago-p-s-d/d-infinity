@@ -1,0 +1,204 @@
+$bg-dark: #121212;
+$card-bg: #1e1e1e;
+$border-color: #333;
+$text-main: #e0e0e0;
+$text-muted: #888;
+$primary-blue: #007bff;
+$primary-hover: #0056b3;
+
+.systems-page {
+  min-height: 100vh;
+  background-color: $bg-dark;
+  color: $text-main;
+  font-family: 'Inter', sans-serif; 
+  
+  .systems-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem;
+  }
+
+  .list-header-flex {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    margin-bottom: 2.5rem;
+
+    .title-text {
+      h2 { color: #fff; font-size: 2.2rem; margin: 0; font-weight: 700; }
+      p { color: $text-muted; margin: 8px 0 0 0; font-size: 1.1rem; }
+    }
+  }
+
+  .create-form {
+    background: $card-bg;
+    padding: 2.5rem;
+    border-radius: 12px;
+    border: 1px solid $border-color;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+
+  .grid-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px; 
+    gap: 2.5rem;
+    align-items: start;
+  }
+
+  .map-preview-container {
+    background: #0a0a0a; 
+    border: 1px solid $border-color;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+
+    .preview-toolbar {
+      background: #1a1a1a;
+      padding: 12px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      border-bottom: 1px solid $border-color;
+      font-size: 0.8rem;
+      color: $text-muted;
+
+      // Botões da toolbar seguindo a estética
+      button {
+        background: #333;
+        border: 1px solid #444;
+        color: #fff;
+        padding: 6px 14px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        
+        &:hover { 
+          background: $primary-blue; 
+          border-color: $primary-blue;
+        }
+      }
+    }
+
+    .map-viewport {
+      height: 600px; 
+      overflow: auto; 
+      position: relative;
+      background-color: #000;
+      background-image: radial-gradient(circle, #222 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    .map-canvas-wrapper {
+      position: relative;
+      transform-origin: 0 0; 
+      transition: transform 0.1s ease-out;
+      display: inline-block;
+    }
+
+    .map-img {
+      display: block;
+      max-width: none; 
+    }
+
+    .grid-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none; 
+      background-image: 
+        linear-gradient(to right, rgba(255,255,255,0.08) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.08) 1px, transparent 1px);
+    }
+  }
+
+  .map-inputs {
+    .full-field {
+      margin-bottom: 1.8rem;
+      
+      label { 
+        display: block; 
+        margin-bottom: 0.8rem; 
+        color: $text-muted; 
+        text-transform: uppercase; 
+        font-size: 0.75rem; 
+        letter-spacing: 1.2px; 
+        font-weight: 600; 
+      }
+      
+      input[type="text"],
+      input[type="number"] { 
+        width: 100%; 
+        background: $bg-dark; 
+        border: 1px solid $border-color; 
+        padding: 1.1rem; 
+        border-radius: 8px; 
+        color: #fff; 
+        font-size: 1rem; 
+        outline: none; 
+        transition: border-color 0.2s;
+        
+        &:focus { border-color: $primary-blue; }
+        &::placeholder { color: #444; }
+      }
+
+      input[type="file"] {
+        color: $text-muted;
+        font-size: 0.9rem;
+        
+        &::file-selector-button {
+          background: #333;
+          color: #fff;
+          border: 1px solid #444;
+          padding: 8px 16px;
+          border-radius: 6px;
+          margin-right: 15px;
+          cursor: pointer;
+          transition: all 0.2s;
+          &:hover { background: #444; }
+        }
+      }
+    }
+  }
+}
+
+.btn-primary { 
+  background-color: $primary-blue; 
+  color: white; 
+  border: none; 
+  padding: 1rem 2rem; 
+  border-radius: 8px; 
+  font-weight: 600; 
+  font-size: 1rem;
+  cursor: pointer; 
+  transition: all 0.2s ease;
+  width: 100%; 
+  
+  &:hover { 
+    background-color: $primary-hover; 
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  }
+  
+  &:disabled { 
+    background-color: #333; 
+    color: #666;
+    cursor: not-allowed; 
+    box-shadow: none;
+  }
+}
+
+.upload-placeholder {
+  width: 100%;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 1.2rem;
+}

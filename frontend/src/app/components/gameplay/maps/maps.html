@@ -1,0 +1,66 @@
+<div class="systems-page">
+  <div class="systems-container">
+    <div class="list-header-flex">
+      <div class="title-text">
+        <h2>Upload and configure grids for your campaign maps.</h2>
+      </div>
+    </div>
+
+    <section class="form-section">
+      <form [formGroup]="mapForm" (ngSubmit)="onSubmit()" class="create-form">
+        <div class="grid-layout">
+          
+          <div class="map-preview-container">
+            <div class="preview-toolbar">
+              <button type="button" (click)="adjustZoom(0.1)">Zoom In (+)</button>
+              <button type="button" (click)="adjustZoom(-0.1)">Zoom Out (-)</button>
+              <span>Zoom: {{ zoomLevel() | number:'1.1-1' }}x</span>
+            </div>
+
+            <div class="map-viewport">
+              <div class="map-canvas-wrapper" 
+                   [style.transform]="'scale(' + zoomLevel() + ')'"
+                   [style.cursor]="selectedImage() ? 'grab' : 'default'">
+                
+                @if (selectedImage()) {
+                  <img [src]="selectedImage()" class="map-img">
+                  <div class="grid-overlay" 
+                       [style.background-size]="gridSize() + 'px ' + gridSize() + 'px'">
+                  </div>
+                } @else {
+                  <div class="upload-placeholder">
+                    <p>No image selected</p>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="map-inputs">
+            <div class="full-field">
+              <label>Map Name</label>
+              <input type="text" formControlName="name" placeholder="Ex: Dragon's Lair">
+            </div>
+
+            <div class="full-field">
+              <label>Campaign ID</label>
+              <input type="number" formControlName="campaignId" placeholder="1">
+            </div>
+
+            <div class="full-field">
+              <label>Select Map Image</label>
+              <input type="file" (change)="onFileSelected($event)" accept="image/*">
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn-save" [disabled]="mapForm.invalid || !selectedImage()">
+                Save Map
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </form>
+    </section>
+  </div>
+</div>
