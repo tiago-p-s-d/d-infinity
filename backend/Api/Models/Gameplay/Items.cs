@@ -17,18 +17,13 @@ public class Item
     [Column("description")]
     public string? Description { get; set; }
 
-    [Column("modifier")]
-    public string? Modifier { get; set; }
-
-    [Column("damage")]
-    public string? Damage { get; set; }
-
-    [Column("ac")]
-    public int? AC { get; set; }
+    // Substituímos Modifier, Damage e AC por Definitions
+    [Column("definitions")]
+    public string? Definitions { get; set; } // Armazenará o JSON vindo do FieldBuilder
 
     [Column("created_by")]
     public int CreatedBy { get; set; }
 
     [ForeignKey("CreatedBy")]
-    public User? Creator { get; set; }
+    public virtual User? Creator { get; set; }
 }

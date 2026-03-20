@@ -12,7 +12,7 @@ public class Currency
     public int Id { get; set; }
 
     [Column("name")]
-    public required string Name { get; set; } // Ex: "D&D 5e Economy", "Modern Dollars"
+    public required string Name { get; set; } 
 
     public virtual ICollection<CurrencyValue> Values { get; set; } = [];
 }

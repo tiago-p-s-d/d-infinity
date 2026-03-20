@@ -1,0 +1,53 @@
+<div class="systems-page">
+  <div class="systems-container">
+    <div class="list-header-flex">
+      <div class="title-text">
+        <h2>Sheet Forge</h2>
+        <p>Define the rules and attributes of your custom RPG system.</p>
+      </div>
+    </div>
+
+    <section class="form-section">
+      <form [formGroup]="sheetForm" (ngSubmit)="onSubmit()" class="create-form">
+        <div class="full-field">
+          <label>Sheet Name</label>
+          <input type="text" formControlName="name" placeholder="Ex: Cyberpunk 2020, My Custom System">
+        </div>
+
+        <div class="full-field" style="margin-top: 1.5rem;">
+      <app-field-builder 
+        (onSchemaChange)="updateSchema($event)"
+        [initialFields]="currentFields">
+      </app-field-builder>
+    </div>
+
+        <div class="form-actions">
+          @if (isEditing) {
+            <button type="button" class="btn-secondary" (click)="resetForm()">Cancel</button>
+          }
+          <button type="submit" class="btn-primary" [disabled]="sheetForm.invalid">
+            {{ isEditing ? 'Update Sheet' : 'Create Sheet' }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <div class="systems-grid">
+      @for (sheet of sheets(); track sheet.id) {
+        <div class="system-card">
+          <div class="card-header-flex">
+            <h3>{{ sheet.name }}</h3>
+            <div class="card-actions">
+              <app-edit-button (onClick)="onEdit(sheet)"></app-edit-button>
+              <app-delete-button (onClick)="onDelete(sheet)"></app-delete-button>
+            </div>
+          </div>
+          
+          <div class="stats-mini">
+            <span><strong>Fields:</strong> {{ sheet.definitions }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

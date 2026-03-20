@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260319202200_AddCharacterSheetModelSystem")]
-    partial class AddCharacterSheetModelSystem
+    [Migration("20260320020400_UpdateCurrencyModels")]
+    partial class UpdateCurrencyModels
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

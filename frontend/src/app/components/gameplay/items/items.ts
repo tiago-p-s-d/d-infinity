@@ -5,16 +5,18 @@ import { ItemService } from '../../../services/gameplay/items/item-service';
 import { Header } from '../../layout/header/header';
 import { EditButton } from '../../layout/edit-button/edit-button';
 import { DeleteButton } from '../../layout/delete-button/delete-button';
+import { FieldBuilder } from '../../global/field-builder/field-builder'; // Importe o builder
 
 @Component({
   selector: 'app-items',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     ReactiveFormsModule,
     Header,
     EditButton,
-    DeleteButton
+    DeleteButton,
+    FieldBuilder
   ],
   templateUrl: './items.html',
   styleUrl: './items.scss',
@@ -26,9 +28,12 @@ export class Items implements OnInit {
   isEditing = false;
   editingItemId: number | null = null;
 
+
+  currentFields: any[] = [];
+
   constructor(
     private fb: FormBuilder,
-    private itemService: ItemService 
+    private itemService: ItemService
   ) { }
 
   ngOnInit(): void {
@@ -39,18 +44,19 @@ export class Items implements OnInit {
   initForm() {
     this.itemForm = this.fb.group({
       name: ['', [Validators.required]],
-      description: [''],
-      modifier: [''],
-      damage: [''],
-      ac: [null]
+      description: ['']
+
     });
+  }
+
+
+  updateSchema(fields: any[]) {
+    this.currentFields = fields;
   }
 
   loadItems() {
     this.itemService.getItems().subscribe({
-      next: (data) => {
-        this.items.set(data);
-      },
+      next: (data) => this.items.set(data),
       error: (err) => console.error('Error fetching items', err)
     });
   }
@@ -58,24 +64,30 @@ export class Items implements OnInit {
   onEdit(item: any) {
     this.isEditing = true;
     this.editingItemId = item.id;
-    
+
     this.itemForm.patchValue({
       name: item.name,
-      description: item.description,
-      modifier: item.modifier,
-      damage: item.damage,
-      ac: item.ac
+      description: item.description
     });
+
+
+    try {
+      this.currentFields = item.definitions ? JSON.parse(item.definitions) : [];
+    } catch (e) {
+      this.currentFields = [];
+    }
 
     document.getElementById('itemFormSection')?.scrollIntoView({ behavior: 'smooth' });
   }
 
-  cancelEdit() {
+  resetForm() {
     this.isEditing = false;
     this.editingItemId = null;
+    this.currentFields = [];
     this.itemForm.reset();
-  }
 
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
   onDelete(item: any) {
     if (confirm(`Are you sure you want to delete "${item.name}"?`)) {
       this.itemService.deleteItem(item.id).subscribe({
@@ -89,27 +101,29 @@ export class Items implements OnInit {
 
   onSubmit() {
     if (this.itemForm.valid) {
-      const itemData = this.itemForm.value;
+      const raw = this.itemForm.value;
 
-      if (this.isEditing && this.editingItemId) {
-        this.itemService.updateItem(this.editingItemId, itemData).subscribe({
-          next: (updatedItem) => {
-            this.items.update(prev => 
-              prev.map(i => i.id === this.editingItemId ? updatedItem : i)
-            );
-            this.cancelEdit(); 
-          },
-          error: (err) => alert('Error updating item: ' + err.message)
-        });
-      } else {
-        this.itemService.createItem(itemData).subscribe({
-          next: (newItem) => {
-            this.items.update(prev => [newItem, ...prev]);
-            this.itemForm.reset();
-          },
-          error: (err) => alert('Error saving item: ' + err.message)
-        });
-      }
+      const payload: any = {
+        name: raw.name,
+        description: raw.description,
+        definitions: JSON.stringify(this.currentFields)
+      };
+
+      const request = this.isEditing && this.editingItemId
+        ? this.itemService.updateItem(this.editingItemId, payload)
+        : this.itemService.createItem(payload);
+
+      request.subscribe({
+        next: (res: any) => {
+          if (this.isEditing) {
+            this.items.update(list => list.map(i => i.id === this.editingItemId ? res : i));
+          } else {
+            this.items.update(list => [res, ...list]);
+          }
+          this.resetForm();
+        },
+        error: (err) => console.error("Error saving item:", err)
+      });
     }
   }
 }

@@ -1,0 +1,63 @@
+<div class="systems-page">
+  <div class="systems-container">
+
+    <div class="list-header-flex">
+      <div class="title-text">
+        <h2>Race Forge</h2>
+        <p>Create ancestral lineages and unique biological traits.</p>
+      </div>
+    </div>
+
+    <section class="form-section" id="raceFormSection">
+      <form [formGroup]="raceForm" (ngSubmit)="onSubmit()" class="create-form">
+        <div class="full-field">
+          <label>Race Name</label>
+          <input type="text" formControlName="name" placeholder="Ex: High Elf, Mountain Dwarf">
+        </div>
+
+        <div class="full-field" style="margin-top: 1.5rem;">
+          <label>About </label>
+          <input type="text" formControlName="about" placeholder="Describe racial traits and history...">
+        </div>
+
+        <div class="full-field" style="margin-top: 1.5rem;">
+          <label>Modifiers </label>
+          <input type="text" formControlName="modifiers"
+            placeholder="Use the same as the character sheet. ex: str:+1; wis:-1;...">
+        </div>
+
+        <div class="form-actions">
+          @if (isEditing) {
+          <button type="button" class="btn-secondary" (click)="resetForm()">Cancel</button>
+          }
+          <button type="submit" class="btn-primary" [disabled]="raceForm.invalid">
+            {{ isEditing ? 'Update Race' : 'Create Race' }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <div class="systems-grid">
+      @for (race of races(); track race.id) {
+      <div class="system-card">
+        <div class="card-header-flex">
+          <h3>{{ race.name }}</h3>
+          <div class="card-actions">
+            <app-edit-button (onClick)="onEdit(race)"></app-edit-button>
+            <app-delete-button (onClick)="onDelete(race)"></app-delete-button>
+          </div>
+        </div>
+
+        <p class="race-description">{{ race.about || 'A mysterious race from the edges of the world.' }}</p>
+
+        <div class="stats-mini">
+          <div class="stats-mini">
+            <span><strong>Mods:</strong> {{ race.modifiers }}</span>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+
+  </div>
+</div>

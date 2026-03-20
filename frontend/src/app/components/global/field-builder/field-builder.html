@@ -1,0 +1,28 @@
+<div class="field-builder-container">
+  <label class="section-label">Structure Definitions</label>
+  
+  <div class="fields-list">
+    @for (field of fields; track $index) {
+      <div class="field-row card-bg">
+        <div class="input-group">
+          <input [(ngModel)]="field.name" placeholder="Field Name (ex: Gold, Str)">
+        </div>
+        
+        <div class="input-group">
+          <select [(ngModel)]="field.type">
+            <option value="number">Number </option>
+            <option value="string">Text </option>
+            <option value="boolean">Checkbox </option>
+          </select>
+        </div>
+
+        <button type="button" class="btn-remove" (click)="removeField($index)" title="Remove field">
+          <h1>-</h1></button>
+        </div>
+    }
+  </div>
+
+  <button type="button" class="btn-add-dashed" (click)="addField()">
+    <i class="fas fa-plus"></i> Add another field?
+  </button>
+</div>

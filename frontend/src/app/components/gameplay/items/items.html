@@ -1,7 +1,7 @@
 <div class="systems-page">
   <app-header></app-header>
   <div class="systems-container">
-    
+
     <div class="list-header-flex">
       <div class="title-text">
         <h2>Game Items</h2>
@@ -20,22 +20,8 @@
           <input type="text" formControlName="name" placeholder="Ex: Steel Longsword">
         </div>
 
-        <div class="grid-form">
-          <div class="field">
-            <label>Damage</label>
-            <input type="text" formControlName="damage" placeholder="Ex: 1d8 + 2">
-          </div>
-          
-          <div class="field">
-            <label>Modifier</label>
-            <input type="text" formControlName="modifier" placeholder="Ex: Strength">
-          </div>
-
-          <div class="field">
-            <label>Armor Class (AC)</label>
-            <input type="number" formControlName="ac" placeholder="Ex: 2">
-          </div>
-        </div>
+        <app-field-builder [initialFields]="currentFields" (onSchemaChange)="updateSchema($event)">
+        </app-field-builder>
 
         <div class="full-field" style="margin-top: 1.5rem;">
           <label>Description</label>
@@ -44,11 +30,11 @@
 
         <div class="form-actions">
           @if (isEditing) {
-            <button type="button" class="btn-secondary" (click)="cancelEdit()">
-              Cancel
-            </button>
+          <button type="button" class="btn-secondary" (click)="resetForm()">
+            Cancel
+          </button>
           }
-          
+
           <button type="submit" class="btn-save" [disabled]="itemForm.invalid">
             {{ isEditing ? 'Save Changes' : 'Add Item' }}
           </button>
@@ -57,41 +43,31 @@
     </section>
 
     <div class="systems-grid">
-      @for (item of items(); track item.id) { 
-        <div class="system-card">
-          <div>
-            <div class="card-header-flex">
-              <h3>{{ item.name }}</h3>
-              
-            </div>
-            
-            <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 1rem;">
-                {{ item.description || 'No description provided.' }}
-            </p>
+      @for (item of items(); track item.id) {
+      <div class="system-card">
+        <div>
+          <div class="card-header-flex">
+            <h3>{{ item.name }}</h3>
+
+          </div>
+
+          <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 1rem;">
+            {{ item.description || 'No description provided.' }}
+          </p>
         </div>
-        
+
         <div class="stats-mini">
-            @if (item.damage && item.damage !== "") {
-                <span><strong>Damage:</strong> {{ item.damage }}</span>
-            }
-            
-            @if (item.ac !== null && item.ac !== undefined) {
-                <span><strong>AC:</strong> +{{ item.ac }}</span>
-            }
-            
-            @if (item.modifier && item.modifier !== "") {
-                <span><strong>Mod:</strong> {{ item.modifier }}</span>
-            }
+        @if (item.damage && item.damage !== "") { ... }
         </div>
-<div class="card-actions">
-      <app-edit-button (onClick)="onEdit(item)"></app-edit-button>
-      <app-delete-button (onClick)="onDelete(item)"></app-delete-button>
-    </div>
+        <div class="card-actions">
+          <app-edit-button (onClick)="onEdit(item)"></app-edit-button>
+          <app-delete-button (onClick)="onDelete(item)"></app-delete-button>
         </div>
+      </div>
       } @empty {
-        <p style="color: #666; text-align: center; grid-column: 1 / -1;">
-          No items created yet.
-        </p>
+      <p style="color: #666; text-align: center; grid-column: 1 / -1;">
+        No items created yet.
+      </p>
       }
     </div>
 

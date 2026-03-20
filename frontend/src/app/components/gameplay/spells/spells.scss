@@ -1,0 +1,143 @@
+$bg-dark: #121212;
+$card-bg: #1e1e1e;
+$border-color: #333;
+$text-main: #e0e0e0;
+$text-muted: #888;
+$primary-blue: #007bff;
+$primary-hover: #0056b3;
+$danger-red: #dc3545;
+
+.systems-page {
+  min-height: 100vh;
+  background-color: $bg-dark;
+  color: $text-main;
+  font-family: 'Inter', sans-serif;
+  
+  .systems-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem;
+  }
+
+  .list-header-flex {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    margin-bottom: 2.5rem;
+
+    .title-text {
+      h2 { color: #fff; font-size: 2.2rem; margin: 0; font-weight: 700; }
+      p { color: $text-muted; margin: 8px 0 0 0; font-size: 1.1rem; }
+    }
+  }
+
+  .form-section {
+    margin-bottom: 4rem;
+    h2 { color: #fff; font-size: 1.5rem; margin-bottom: 1.5rem; border-left: 4px solid $primary-blue; padding-left: 1rem; }
+  }
+
+  .create-form {
+    background: $card-bg;
+    padding: 2.5rem;
+    border-radius: 12px;
+    border: 1px solid $border-color;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+
+    .full-field {
+      margin-bottom: 2rem;
+      label { display: block; margin-bottom: 0.8rem; color: $text-muted; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1.2px; font-weight: 600; }
+      input { 
+        width: 100%; 
+        background: $bg-dark; 
+        border: 1px solid $border-color; 
+        padding: 1.1rem; 
+        border-radius: 8px; 
+        color: #fff; 
+        font-size: 1rem; 
+        outline: none; 
+        &:focus { border-color: $primary-blue; box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1); }
+      }
+    }
+
+    .grid-form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      .field {
+        label { font-size: 0.75rem; color: $text-muted; margin-bottom: 0.6rem; display: block; text-transform: uppercase; font-weight: 600; }
+        input { width: 100%; background: $bg-dark; border: 1px solid $border-color; padding: 0.9rem; border-radius: 6px; color: #fff; outline: none; &:focus { border-color: $primary-blue; } }
+      }
+    }
+
+    .form-actions { margin-top: 2.5rem; display: flex; justify-content: flex-end; gap: 1rem; }
+  }
+
+  .systems-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+
+    .system-card {
+      background: $card-bg;
+      border: 1px solid $border-color;
+      border-radius: 12px;
+      padding: 1.8rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 200px;
+
+      &:hover { 
+        border-color: $primary-blue; 
+        transform: translateY(-6px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.6);
+      }
+
+      .card-header-flex {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        h3 { margin: 0; color: #fff; font-size: 1.4rem; font-weight: 600; flex: 1; }
+        .card-actions { display: flex; gap: 0.4rem; }
+      }
+
+      .spell-description {
+        color: #aaa;
+        font-size: 0.9rem;
+        margin: 1rem 0;
+        line-height: 1.5;
+        flex-grow: 1;
+      }
+      
+      .stats-mini { 
+        font-size: 0.82rem; 
+        color: #bbb; 
+        display: flex; 
+        flex-wrap: wrap;
+        gap: 0.8rem; 
+        background: rgba(0,0,0,0.25);
+        padding: 0.8rem;
+        border-radius: 8px;
+        margin-top: auto;
+
+        span {
+          strong { color: $primary-blue; margin-right: 4px; }
+        }
+      }
+    }
+  }
+}
+
+.btn-primary { 
+  background-color: $primary-blue; color: white; border: none; padding: 1rem 2rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  &:hover { background-color: $primary-hover; box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3); }
+  &:disabled { background-color: #333; color: #666; cursor: not-allowed; }
+}
+
+.btn-secondary {
+  background: transparent; color: #888; border: 1px solid #444; padding: 1rem 2rem; border-radius: 8px; font-weight: 600; cursor: pointer;
+  &:hover { color: #fff; border-color: #666; background: rgba(255,255,255,0.05); }
+}
+
+.empty-msg { color: #555; text-align: center; grid-column: 1 / -1; padding: 3rem; }

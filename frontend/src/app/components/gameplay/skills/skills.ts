@@ -2,11 +2,13 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SkillService } from '../../../services/gameplay/skills/skill-service';
+import { EditButton } from '../../layout/edit-button/edit-button';
+import { DeleteButton } from '../../layout/delete-button/delete-button';
 
 @Component({
   selector: 'app-skills',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, EditButton, DeleteButton],
   templateUrl: './skills.html',
   styleUrl: './skills.scss',
 })
@@ -27,7 +29,6 @@ export class Skills implements OnInit {
     this.skillForm = this.fb.group({
       name: ['', [Validators.required]],
       about: [''],
-      // Campos que o sistema não previu (vão para o JSON 'effect')
       customStat: [''],
       customValue: [0]
     });
@@ -41,11 +42,9 @@ export class Skills implements OnInit {
     if (this.skillForm.valid) {
       const raw = this.skillForm.value;
       
-      const skillPayload = {
-        id: this.editingSkillId,
+      const skillPayload: any = {
         name: raw.name,
         about: raw.about,
-        // Montamos o JSON manual conforme seu comentário no C#
         effect: JSON.stringify({
           stat: raw.customStat,
           value: raw.customValue
@@ -53,6 +52,8 @@ export class Skills implements OnInit {
       };
 
       if (this.isEditing && this.editingSkillId) {
+        skillPayload.id = this.editingSkillId;
+
         this.skillService.update(this.editingSkillId, skillPayload).subscribe((res: any) => {
           this.skills.update(list => list.map(s => s.id === this.editingSkillId ? res : s));
           this.resetForm();

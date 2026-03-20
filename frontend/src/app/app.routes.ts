@@ -8,6 +8,10 @@ import { Systems } from './components/gameplay/systems/systems';
 import { Items } from './components/gameplay/items/items';
 import { Maps } from './components/gameplay/maps/maps';
 import { Skills } from './components/gameplay/skills/skills';
+import { Spells } from './components/gameplay/spells/spells';
+import { Races } from './components/gameplay/races/races';
+import { CharacterSheet } from './components/gameplay/character-sheet/character-sheet';
+import { Currency } from './components/gameplay/currency/currency';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -19,6 +23,13 @@ export const routes: Routes = [
   { path: 'dm/items', component: Items, canActivate: [authGuard]},
   { path: 'dm/maps', component: Maps, canActivate: [authGuard]},
   { path: 'dm/skills', component: Skills, canActivate: [authGuard]},
+  { path: 'dm/spells', component: Spells, canActivate: [authGuard]},
+  { path: 'dm/races', component: Races, canActivate: [authGuard]},
+  { path: 'dm/character-sheets', component: CharacterSheet, canActivate: [authGuard]},
+  { path: 'dm/currency', component: Currency, canActivate: [authGuard]},
+
+  
+
 
 
 

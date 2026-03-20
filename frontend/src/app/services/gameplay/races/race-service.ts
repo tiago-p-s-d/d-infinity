@@ -2,11 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
+
 @Injectable({
   providedIn: 'root',
 })
-export class ItemService {
-   private apiUrl = `${environment.apiUrl}/item`;
+export class RaceService {
+  private apiUrl = `${environment.apiUrl}/races`;
+
   constructor(private http: HttpClient) {}
 
   private getHeaders() {
@@ -16,19 +18,19 @@ export class ItemService {
     });
   }
 
-  getItems(): Observable<any[]> {
+  getRaces(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl, { headers: this.getHeaders() });
   }
 
-  createItem(item: any): Observable<any> {
-    return this.http.post<any>(this.apiUrl, item, { headers: this.getHeaders() });
+  create(race: any): Observable<any> {
+    return this.http.post<any>(this.apiUrl, race, { headers: this.getHeaders() });
   }
 
-  updateItem(id: number, item: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/${id}`, item, { headers: this.getHeaders() });
+  update(id: number, race: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${id}`, race, { headers: this.getHeaders() });
   }
 
-  deleteItem(id: number): Observable<any> {
+  delete(id: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 }

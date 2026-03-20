@@ -4,6 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer; 
 using Microsoft.IdentityModel.Tokens; 
 using System.Text; 
+using System.Text.Json.Serialization; // Adicionado para o ReferenceHandler
 
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.Clear();
@@ -36,7 +37,14 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization(); 
 
-builder.Services.AddControllers();
+// CORREÇÃO AQUI: Adicionado AddJsonOptions para ignorar ciclos de objeto
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    });
+
 builder.Services.AddOpenApi();
 
 builder.Services.AddCors(options => {

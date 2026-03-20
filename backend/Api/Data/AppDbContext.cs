@@ -16,6 +16,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     // --- Core do Gameplay (Fichas e Sistemas) ---
     public DbSet<SystemModel> Systems { get; set; } = null!;        
     public DbSet<CharacterSheet> CharacterSheets { get; set; } = null!;
+    public DbSet<CharacterSheetModel> CharacterSheetModels { get; set; } = null!;
     public DbSet<Race> Races { get; set; } = null!;
     public DbSet<MapModel> Maps { get; set; } = null!;
 

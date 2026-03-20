@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization; // Importante para o JsonIgnore
 
 namespace Api.Models.Gameplay;
 
@@ -21,5 +22,6 @@ public class CurrencyValue
     public decimal ConversionRate { get; set; }
 
     [ForeignKey("CurrencyId")]
+    [JsonIgnore]
     public virtual Currency? Currency { get; set; }
 }

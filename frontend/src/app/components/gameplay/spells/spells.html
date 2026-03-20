@@ -3,56 +3,56 @@
     
     <div class="list-header-flex">
       <div class="title-text">
-        <h2>Skill Forge</h2>
+        <h2>Spell Forge</h2>
         <p>Create features and tactical maneuvers for your system.</p>
       </div>
     </div>
 
     <section class="form-section" id="itemFormSection">
-      <form [formGroup]="skillForm" (ngSubmit)="onSubmit()" class="create-form">
+      <form [formGroup]="spellForm" (ngSubmit)="onSubmit()" class="create-form">
         <div class="full-field">
-          <label>Skill Name</label>
-          <input type="text" formControlName="name" placeholder="Ex: Adrenaline Rush">
+          <label>Spell Name</label>
+          <input type="text" formControlName="name" placeholder="Ex: Fireball">
         </div>
 
         <div class="grid-form">
           <div class="field">
             <label>Effect</label>
-            <input type="text" formControlName="customStat" placeholder="Ex: speed, defense, rage_points">
+            <input type="text" formControlName="customStat" placeholder="Ex: damage: 4d6; cost: 4; if_pass: 4d6/2;">
           </div>
         </div>
 
         <div class="full-field" style="margin-top: 1.5rem;">
           <label>About / Mechanics</label>
-          <input type="text" formControlName="about" placeholder="Describe the skill mechanics...">
+          <input type="text" formControlName="about" placeholder="Describe the Spell mechanics...">
         </div>
 
         <div class="form-actions">
           @if (isEditing) {
             <button type="button" class="btn-secondary" (click)="resetForm()">Cancel</button>
           }
-          <button type="submit" class="btn-primary" [disabled]="skillForm.invalid">
-            {{ isEditing ? 'Update Skill' : 'Create Skill' }}
+          <button type="submit" class="btn-primary" [disabled]="spellForm.invalid">
+            {{ isEditing ? 'Update Spell' : 'Create Spell' }}
           </button>
         </div>
       </form>
     </section>
 
     <div class="systems-grid">
-      @for (skill of skills(); track skill.id) {
+      @for (Spell of spells(); track Spell.id) {
         <div class="system-card">
           <div class="card-header-flex">
-            <h3>{{ skill.name }}</h3>
+            <h3>{{ Spell.name }}</h3>
             <div class="card-actions">
-                    <app-edit-button (onClick)="onEdit(skill)"></app-edit-button>
-                    <app-delete-button (onClick)="onDelete(skill)"></app-delete-button>
+                    <app-edit-button (onClick)="onEdit(Spell)"></app-edit-button>
+                    <app-delete-button (onClick)="onDelete(Spell)"></app-delete-button>
             </div>
           </div>
           
-          <p class="skill-description">{{ skill.about || 'No mechanics described.' }}</p>
+          <p class="Spell-description">{{ Spell.about || 'No mechanics described.' }}</p>
 
           <div class="stats-mini">
-            @let eff = getEffect(skill.effect);
+            @let eff = getEffect(Spell.effect);
             <span><strong>Effect:</strong> {{ eff.stat }}</span>
           </div>
         </div>

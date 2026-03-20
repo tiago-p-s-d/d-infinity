@@ -6,28 +6,25 @@ import { environment } from '../../../../environments/environment';
 @Injectable({
   providedIn: 'root',
 })
-export class SkillService {
-  private apiUrl = `${environment.apiUrl}/skill`;
+export class SpellService {
+  private apiUrl = `${environment.apiUrl}/spell`;
 
   constructor(private http: HttpClient) {}
 
   private getHeaders() {
-    const token = localStorage.getItem('token');
-    return new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
+    return new HttpHeaders({ 'Authorization': `Bearer ${localStorage.getItem('token')}` });
   }
 
-  getSkills(): Observable<any[]> {
+  getSpells(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl, { headers: this.getHeaders() });
   }
 
-  create(skill: any): Observable<any> {
-    return this.http.post<any>(this.apiUrl, skill, { headers: this.getHeaders() });
+  create(spell: any): Observable<any> {
+    return this.http.post<any>(this.apiUrl, spell, { headers: this.getHeaders() });
   }
 
-  update(id: number, skill: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/${id}`, skill, { headers: this.getHeaders() });
+  update(id: number, spell: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${id}`, spell, { headers: this.getHeaders() });
   }
 
   delete(id: number): Observable<any> {
