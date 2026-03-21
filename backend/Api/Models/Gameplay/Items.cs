@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Api.Models.Gameplay.Groups;
 
 namespace Api.Models.Gameplay;
 
@@ -17,9 +18,14 @@ public class Item
     [Column("description")]
     public string? Description { get; set; }
 
-    // Substituímos Modifier, Damage e AC por Definitions
     [Column("definitions")]
-    public string? Definitions { get; set; } // Armazenará o JSON vindo do FieldBuilder
+    public string? Definitions { get; set; } 
+
+    [Column("item_group_id")]
+    public int ItemGroupId { get; set; }
+
+    [ForeignKey("ItemGroupId")]
+    public virtual ItemGroup? Group { get; set; }
 
     [Column("created_by")]
     public int CreatedBy { get; set; }

@@ -1,5 +1,6 @@
 using Api.Data;
 using Api.Models.Gameplay;
+using Api.Models.Gameplay.Groups;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
@@ -9,82 +10,109 @@ namespace Api.Controllers.Gameplay;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize] // Proteção global para o controller
 public class SkillController(AppDbContext context) : ControllerBase
 {
     private readonly AppDbContext _context = context;
 
-    [Authorize]
+    // --- SEÇÃO DE SKILLS (Perícias/Habilidades) ---
+
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Skill>>> GetMySkills()
     {
-        var userIdClaim = User.FindFirst("id")?.Value;
-        if (userIdClaim == null) return Unauthorized();
-        
-        if (!int.TryParse(userIdClaim, out int userId)) return BadRequest("Invalid User ID.");
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
 
         return await _context.Skills
+            .Include(s => s.Group) // Traz os dados do SkillGroup associado
             .Where(s => s.CreatedBy == userId)
             .OrderByDescending(s => s.Id)
             .ToListAsync();
     }
 
-    [Authorize]
     [HttpPost]
     public async Task<ActionResult<Skill>> CreateSkill(Skill skill)
     {
-        var userIdClaim = User.FindFirst("id")?.Value;
-        if (userIdClaim == null) return Unauthorized();
-        
-        var userId = int.Parse(userIdClaim);
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
 
-        skill.CreatedBy = userId;
+        skill.CreatedBy = userId.Value;
+        skill.Creator = null;
+        skill.Group = null; // Evita que o EF tente criar um novo grupo se o ID for enviado
 
         _context.Skills.Add(skill);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetMySkills), new { id = skill.Id }, skill);
+        // Recarrega para incluir o objeto Group no retorno para o Frontend
+        var newSkill = await _context.Skills
+            .Include(s => s.Group)
+            .FirstOrDefaultAsync(s => s.Id == skill.Id);
+
+        return Ok(newSkill);
     }
 
-    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateSkill(int id, Skill skill)
     {
-        var userIdClaim = User.FindFirst("id")?.Value;
-        if (userIdClaim == null) return Unauthorized();
-        var userId = int.Parse(userIdClaim);
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
 
-        if (id != skill.Id) return BadRequest();
+        var existingSkill = await _context.Skills.FindAsync(id);
 
-        var exists = await _context.Skills
-            .AnyAsync(s => s.Id == id && s.CreatedBy == userId);
+        if (existingSkill == null) return NotFound();
+        if (existingSkill.CreatedBy != userId) return Forbid();
 
-        if (!exists) return NotFound();
+        // Atualização dos campos
+        existingSkill.Name = skill.Name;
+        existingSkill.About = skill.About;
+        existingSkill.Effect = skill.Effect;
+        existingSkill.SkillGroupId = skill.SkillGroupId;
 
-        skill.CreatedBy = userId;
-        skill.Creator = null;
-        
-        _context.Entry(skill).State = EntityState.Modified;
         await _context.SaveChangesAsync();
-
-        return Ok(skill);
+        return Ok(existingSkill);
     }
 
-    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteSkill(int id)
     {
-        var userIdClaim = User.FindFirst("id")?.Value;
-        if (userIdClaim == null) return Unauthorized();
-        var userId = int.Parse(userIdClaim);
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
 
-        var skill = await _context.Skills
-            .FirstOrDefaultAsync(s => s.Id == id && s.CreatedBy == userId);
+        var skill = await _context.Skills.FindAsync(id);
 
         if (skill == null) return NotFound();
+        if (skill.CreatedBy != userId) return Forbid();
 
         _context.Skills.Remove(skill);
         await _context.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    // --- SEÇÃO DE GRUPOS (Skill Groups) ---
+
+    [HttpGet("groups")] // Rota: GET api/skill/groups
+    public async Task<ActionResult<IEnumerable<SkillGroup>>> GetGroups()
+    {
+        return await _context.SkillGroups.ToListAsync();
+    }
+
+    [HttpPost("groups")] // Rota: POST api/skill/groups
+    public async Task<ActionResult<SkillGroup>> CreateGroup([FromBody] SkillGroup group)
+    {
+        if (string.IsNullOrEmpty(group.Name)) return BadRequest("Name is required");
+
+        _context.SkillGroups.Add(group);
+        await _context.SaveChangesAsync();
+
+        return Ok(group);
+    }
+
+    // --- HELPER ---
+
+    private int? GetUserId()
+    {
+        var claim = User.FindFirst("id")?.Value ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return int.TryParse(claim, out int id) ? id : null;
     }
 }

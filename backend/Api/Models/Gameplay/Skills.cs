@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Api.Models.Gameplay.Groups;
 
 namespace Api.Models.Gameplay;
 
@@ -22,6 +23,12 @@ public class Skill
     /// </summary>
     [Column("effect", TypeName = "json")]
     public string Effect { get; set; } = "{}";
+
+    [Column("skill_group_id")]
+    public int SkillGroupId { get; set; }
+
+    [ForeignKey("SkillGroupId")]
+    public virtual SkillGroup? Group { get; set; }
     
     [Column("created_by")]
     public int CreatedBy { get; set; }
