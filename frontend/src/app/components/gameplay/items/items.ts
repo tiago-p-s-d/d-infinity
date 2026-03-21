@@ -2,10 +2,11 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ItemService } from '../../../services/gameplay/items/item-service';
+import { ItemGroupService } from '../../../services/gameplay/items/group/item-group-service';
 import { Header } from '../../layout/header/header';
 import { EditButton } from '../../layout/edit-button/edit-button';
 import { DeleteButton } from '../../layout/delete-button/delete-button';
-import { FieldBuilder } from '../../global/field-builder/field-builder'; // Importe o builder
+import { FieldBuilder } from '../../global/field-builder/field-builder';
 
 @Component({
   selector: 'app-items',
@@ -24,34 +25,35 @@ import { FieldBuilder } from '../../global/field-builder/field-builder'; // Impo
 export class Items implements OnInit {
   itemForm!: FormGroup;
   items = signal<any[]>([]);
+  itemGroups = signal<any[]>([]); // Signal para os grupos
 
   isEditing = false;
   editingItemId: number | null = null;
-
-
+  showGroupModal = false; // Controle do modal
   currentFields: any[] = [];
 
   constructor(
     private fb: FormBuilder,
-    private itemService: ItemService
+    private itemService: ItemService,
+    private groupService: ItemGroupService // Injeção do service de grupos
   ) { }
 
   ngOnInit(): void {
     this.initForm();
     this.loadItems();
+    this.loadGroups();
   }
 
   initForm() {
     this.itemForm = this.fb.group({
       name: ['', [Validators.required]],
-      description: ['']
-
+      description: [''],
+      itemGroupId: [null, [Validators.required]] // Campo de grupo obrigatório
     });
   }
 
-
-  updateSchema(fields: any[]) {
-    this.currentFields = fields;
+  loadGroups() {
+    this.groupService.getGroups().subscribe(data => this.itemGroups.set(data));
   }
 
   loadItems() {
@@ -61,15 +63,39 @@ export class Items implements OnInit {
     });
   }
 
+  parseDefinitions(definitions: string) {
+    try {
+      return definitions ? JSON.parse(definitions) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  saveNewGroup(name: string) {
+    if (!name) return;
+    this.groupService.createGroup(name).subscribe({
+      next: (newGroup) => {
+        this.itemGroups.update(list => [...list, newGroup]);
+        this.itemForm.patchValue({ itemGroupId: newGroup.id });
+        this.showGroupModal = false;
+      },
+      error: (err) => alert("Error creating group")
+    });
+  }
+
+  updateSchema(fields: any[]) {
+    this.currentFields = fields;
+  }
+
   onEdit(item: any) {
     this.isEditing = true;
     this.editingItemId = item.id;
 
     this.itemForm.patchValue({
       name: item.name,
-      description: item.description
+      description: item.description,
+      itemGroupId: item.itemGroupId
     });
-
 
     try {
       this.currentFields = item.definitions ? JSON.parse(item.definitions) : [];
@@ -85,9 +111,9 @@ export class Items implements OnInit {
     this.editingItemId = null;
     this.currentFields = [];
     this.itemForm.reset();
-
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
+
   onDelete(item: any) {
     if (confirm(`Are you sure you want to delete "${item.name}"?`)) {
       this.itemService.deleteItem(item.id).subscribe({
@@ -106,6 +132,7 @@ export class Items implements OnInit {
       const payload: any = {
         name: raw.name,
         description: raw.description,
+        itemGroupId: raw.itemGroupId,
         definitions: JSON.stringify(this.currentFields)
       };
 

@@ -120,3 +120,52 @@
   @extend .btn-primary; 
   width: 200px;
 }
+
+.grid-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr; // Duas colunas
+  gap: 20px;
+
+  .field {
+    display: flex;
+    flex-direction: column;
+
+    // Classe utilitária para campos que devem ocupar a linha toda
+    &.full-width {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #ccc;
+    }
+
+    select {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: white;
+      padding: 12px;
+      border-radius: 8px;
+      outline: none;
+
+      &:focus {
+        border-color: #007bff;
+      }
+    }
+
+    .multi-select {
+      height: 120px; // Altura para facilitar ver as opções múltiplas
+      padding: 5px;
+      
+      option {
+        padding: 8px;
+        border-bottom: 1px solid #222;
+        
+        &:checked {
+          background: #007bff linear-gradient(0deg, #007bff 0%, #007bff 100%);
+        }
+      }
+    }
+  }
+}

@@ -2,107 +2,138 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SpellService } from '../../../services/gameplay/spells/spell-service';
+import { SpellGroupService } from '../../../services/gameplay/spells/group/spells-group-service';// Importe o service de grupos
 import { EditButton } from '../../layout/edit-button/edit-button';
 import { DeleteButton } from '../../layout/delete-button/delete-button';
-
+import { Header } from '../../layout/header/header';
+import { FieldBuilder } from '../../global/field-builder/field-builder';
 
 @Component({
   selector: 'app-spells',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, EditButton, DeleteButton],
+  imports: [CommonModule, ReactiveFormsModule, EditButton, DeleteButton, Header, FieldBuilder],
   templateUrl: './spells.html',
   styleUrl: './spells.scss',
 })
 export class Spells implements OnInit {
   spellForm!: FormGroup;
-    spells = signal<any[]>([]);
-    isEditing = false;
-    editingspellId: number | null = null;
+  spells = signal<any[]>([]);
+  spellGroups = signal<any[]>([]); 
   
-    constructor(private fb: FormBuilder, private spellService: SpellService) {}
-  
-    ngOnInit(): void {
-      this.initForm();
-      this.loadspells();
+  isEditing = false;
+  editingSpellId: number | null = null;
+  showGroupModal = false;
+  currentFields: any[] = []; 
+
+  constructor(
+    private fb: FormBuilder, 
+    private spellService: SpellService,
+    private groupService: SpellGroupService 
+  ) {}
+
+  ngOnInit(): void {
+    this.initForm();
+    this.loadSpells();
+    this.loadGroups();
+  }
+
+  initForm() {
+    this.spellForm = this.fb.group({
+      name: ['', [Validators.required]],
+      about: [''],
+      spellGroupId: [null, [Validators.required]]
+    });
+  }
+
+  loadSpells() {
+    this.spellService.getSpells().subscribe((data: any[]) => this.spells.set(data));
+  }
+
+  loadGroups() {
+    this.groupService.getGroups().subscribe(data => this.spellGroups.set(data));
+  }
+
+  updateSchema(fields: any[]) {
+    this.currentFields = fields;
+  }
+
+  parseEffect(effectJson: string) {
+    try {
+      return effectJson ? JSON.parse(effectJson) : [];
+    } catch (e) {
+      return [];
     }
-  
-    initForm() {
-      this.spellForm = this.fb.group({
-        name: ['', [Validators.required]],
-        about: [''],
-        customStat: [''],
-        customValue: [0]
-      });
-    }
-  
-    loadspells() {
-      this.spellService.getSpells().subscribe((data: any[]) => this.spells.set(data));
-    }
-  
-    onSubmit() {
-      if (this.spellForm.valid) {
-        const raw = this.spellForm.value;
-        
-        const spellPayload: any = {
-          name: raw.name,
-          about: raw.about,
-          effect: JSON.stringify({
-            stat: raw.customStat,
-            value: raw.customValue
-          })
-        };
-  
-        if (this.isEditing && this.editingspellId) {
-          spellPayload.id = this.editingspellId;
-  
-          this.spellService.update(this.editingspellId, spellPayload).subscribe((res: any) => {
-            this.spells.update(list => list.map(s => s.id === this.editingspellId ? res : s));
-            this.resetForm();
-          });
-        } else {
-          this.spellService.create(spellPayload).subscribe((res: any) => {
-            this.spells.update(list => [res, ...list]);
-            this.resetForm();
-          });
-        }
-      }
-    }
-  
-    onEdit(spell: any) {
-      this.isEditing = true;
-      this.editingspellId = spell.id;
+  }
+
+  saveNewGroup(name: string) {
+    if (!name) return;
+    this.groupService.createGroup(name).subscribe({
+      next: (newGroup) => {
+        this.spellGroups.update(list => [...list, newGroup]);
+        this.spellForm.patchValue({ spellGroupId: newGroup.id });
+        this.showGroupModal = false;
+      },
+      error: (err) => alert("Error creating spell group")
+    });
+  }
+
+  onSubmit() {
+    if (this.spellForm.valid) {
+      const raw = this.spellForm.value;
       
-      const eff = typeof spell.effect === 'string' ? JSON.parse(spell.effect) : spell.effect;
-  
-      this.spellForm.patchValue({
-        name: spell.name,
-        about: spell.about,
-        customStat: eff.stat || '',
-        customValue: eff.value || 0
+      const spellPayload: any = {
+        name: raw.name,
+        about: raw.about,
+        spellGroupId: raw.spellGroupId,
+        effect: JSON.stringify(this.currentFields) 
+      };
+
+      const request = this.isEditing && this.editingSpellId
+        ? this.spellService.update(this.editingSpellId, spellPayload)
+        : this.spellService.create(spellPayload);
+
+      request.subscribe({
+        next: (res: any) => {
+          this.loadSpells(); 
+          this.resetForm();
+        },
+        error: (err) => console.error("Error saving spell:", err)
       });
-  
-      document.getElementById('itemFormSection')?.scrollIntoView({ behavior: 'smooth' });
     }
-  
-    getEffect(jsonStr: string) {
-      try {
-        return typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
-      } catch {
-        return { stat: 'N/A', value: 0 };
-      }
+  }
+
+  onEdit(spell: any) {
+    this.isEditing = true;
+    this.editingSpellId = spell.id;
+    
+    this.spellForm.patchValue({
+      name: spell.name,
+      about: spell.about,
+      spellGroupId: spell.spellGroupId
+    });
+
+    try {
+      this.currentFields = spell.effect ? JSON.parse(spell.effect) : [];
+    } catch (e) {
+      this.currentFields = [];
     }
-  
-    resetForm() {
-      this.isEditing = false;
-      this.editingspellId = null;
-      this.spellForm.reset({ customValue: 0 });
+
+    document.getElementById('spellFormSection')?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  resetForm() {
+    this.isEditing = false;
+    this.editingSpellId = null;
+    this.currentFields = [];
+    this.spellForm.reset();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  onDelete(spell: any) {
+    if (confirm(`Delete spell "${spell.name}"?`)) {
+      this.spellService.delete(spell.id).subscribe(() => {
+        this.spells.update(list => list.filter(s => s.id !== spell.id));
+      });
     }
-  
-    onDelete(id: number) {
-      if (confirm('Delete this spell?')) {
-        this.spellService.delete(id).subscribe(() => {
-          this.spells.update(list => list.filter(s => s.id !== id));
-        });
-      }
-    }
+  }
 }

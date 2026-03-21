@@ -1,28 +1,47 @@
 <div class="systems-page">
+  <app-header></app-header>
   <div class="systems-container">
     
     <div class="list-header-flex">
       <div class="title-text">
         <h2>Spell Forge</h2>
-        <p>Create features and tactical maneuvers for your system.</p>
+        <p>Craft arcane incantations and mystical powers.</p>
       </div>
     </div>
 
-    <section class="form-section" id="itemFormSection">
-      <form [formGroup]="spellForm" (ngSubmit)="onSubmit()" class="create-form">
-        <div class="full-field">
-          <label>Spell Name</label>
-          <input type="text" formControlName="name" placeholder="Ex: Fireball">
-        </div>
+    <section class="form-section" id="spellFormSection">
+      <div class="section-header">
+        <h2>{{ isEditing ? 'Edit Spell' : 'Create New Spell' }}</h2>
+      </div>
 
+      <form [formGroup]="spellForm" (ngSubmit)="onSubmit()" class="create-form">
         <div class="grid-form">
           <div class="field">
-            <label>Effect</label>
-            <input type="text" formControlName="customStat" placeholder="Ex: damage: 4d6; cost: 4; if_pass: 4d6/2;">
+            <label>Spell Name</label>
+            <input type="text" formControlName="name" placeholder="Ex: Fireball">
+          </div>
+
+          <div class="field">
+            <label>Spell Group (Grimoire)</label>
+            <div class="group-input-flex">
+              <select formControlName="spellGroupId">
+                <option [ngValue]="null" disabled>Select a group...</option>
+                @for (group of spellGroups(); track group.id) {
+                  <option [ngValue]="group.id">{{ group.name }}</option>
+                }
+              </select>
+              <button type="button" class="btn-primary-sm" (click)="showGroupModal = true">+</button>
+            </div>
           </div>
         </div>
 
-        <div class="full-field" style="margin-top: 1.5rem;">
+        <div style="margin-bottom: 2rem;">
+          <label class="builder-label">Spell Stats & Scaling</label>
+          <app-field-builder [initialFields]="currentFields" (onSchemaChange)="updateSchema($event)">
+          </app-field-builder>
+        </div>
+
+        <div class="full-field">
           <label>About / Mechanics</label>
           <input type="text" formControlName="about" placeholder="Describe the Spell mechanics...">
         </div>
@@ -31,33 +50,53 @@
           @if (isEditing) {
             <button type="button" class="btn-secondary" (click)="resetForm()">Cancel</button>
           }
-          <button type="submit" class="btn-primary" [disabled]="spellForm.invalid">
-            {{ isEditing ? 'Update Spell' : 'Create Spell' }}
+          <button type="submit" class="btn-save" [disabled]="spellForm.invalid">
+            {{ isEditing ? 'Save Changes' : 'Create Spell' }}
           </button>
         </div>
       </form>
     </section>
 
+    @if (showGroupModal) {
+      <div class="modal-overlay">
+        <div class="modal-content">
+          <h3>New Spell Group</h3>
+          <input type="text" #newGroupName placeholder="Group Name (Ex: Evocation)">
+          <div class="modal-actions">
+            <button class="btn-secondary" (click)="showGroupModal = false">Cancel</button>
+            <button class="btn-save" (click)="saveNewGroup(newGroupName.value)">Create</button>
+          </div>
+        </div>
+      </div>
+    }
+
     <div class="systems-grid">
-      @for (Spell of spells(); track Spell.id) {
+      @for (spell of spells(); track spell.id) {
         <div class="system-card">
           <div class="card-header-flex">
-            <h3>{{ Spell.name }}</h3>
+            <div class="title-badge-flex">
+              <h3>{{ spell.name }}</h3>
+              <span class="badge">{{ spell.group?.name }}</span>
+            </div>
             <div class="card-actions">
-                    <app-edit-button (onClick)="onEdit(Spell)"></app-edit-button>
-                    <app-delete-button (onClick)="onDelete(Spell)"></app-delete-button>
+                    <app-edit-button (onClick)="onEdit(spell)"></app-edit-button>
+                    <app-delete-button (onClick)="onDelete(spell)"></app-delete-button>
             </div>
           </div>
           
-          <p class="Spell-description">{{ Spell.about || 'No mechanics described.' }}</p>
+          <p class="spell-description">{{ spell.about || 'No mechanics described.' }}</p>
 
           <div class="stats-mini">
-            @let eff = getEffect(Spell.effect);
-            <span><strong>Effect:</strong> {{ eff.stat }}</span>
+            @for (eff of parseEffect(spell.effect); track eff.label) {
+              <span><strong>{{ eff.label }}:</strong> {{ eff.value }}</span>
+            } @empty {
+              <span style="color: #666;">No stats defined.</span>
+            }
           </div>
         </div>
+      } @empty {
+        <p class="empty-msg">No spells created yet.</p>
       }
     </div>
-
   </div>
 </div>

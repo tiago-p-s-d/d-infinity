@@ -17,38 +17,80 @@
 
           <div class="grid-form">
             <div class="field">
-              <label>Character Sheet ID</label>
-              <input type="number" formControlName="characterSheetId">
+              <label>Character Sheet Model</label>
+              <select formControlName="characterSheetId">
+                <option [ngValue]="null" disabled>Select a sheet...</option>
+                @for (s of sheets(); track s.id) {
+                  <option [ngValue]="s.id">{{ s.name }}</option>
+                }
+              </select>
             </div>
+
             <div class="field">
-              <label>Items Pack ID</label>
-              <input type="number" formControlName="itemsId">
+              <label>Economy / Currency</label>
+              <select formControlName="currencyId">
+                <option [ngValue]="null" disabled>Select economy...</option>
+                @for (c of currencies(); track c.id) {
+                  <option [ngValue]="c.id">{{ c.name }}</option>
+                }
+              </select>
             </div>
+
+            <div class="field full-width">
+              <label>Items Packs (Hold Ctrl to select multiple)</label>
+              <select formControlName="itemsId" multiple class="multi-select">
+                @for (i of itemsList(); track i.id) {
+                  <option [value]="i.id">{{ i.name }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="field full-width">
+              <label>Spells Packs</label>
+              <select formControlName="spellsId" multiple class="multi-select">
+                @for (sp of spellsList(); track sp.id) {
+                  <option [value]="sp.id">{{ sp.name }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="field full-width">
+              <label>Skills Packs</label>
+              <select formControlName="skillsId" multiple class="multi-select">
+                @for (sk of skillsList(); track sk.id) {
+                  <option [value]="sk.id">{{ sk.name }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="field full-width">
+              <label>Races Packs</label>
+              <select formControlName="racesId" multiple class="multi-select">
+                @for (r of racesList(); track r.id) {
+                  <option [value]="r.id">{{ r.name }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="field full-width">
+              <label>Maps Packs</label>
+              <select formControlName="mapsId" multiple class="multi-select">
+                @for (m of mapsList(); track m.id) {
+                  <option [value]="m.id">{{ m.name }}</option>
+                }
+              </select>
+            </div>
+
             <div class="field">
-              <label>Spells Pack ID</label>
-              <input type="number" formControlName="spellsId">
+              <label>Classes Pack (Optional)</label>
+              <select formControlName="classesId">
+                <option [ngValue]="null">None / Select pack...</option>
+                @for (cls of classesList(); track cls.id) {
+                  <option [ngValue]="cls.id">{{ cls.name }}</option>
+                }
+              </select>
             </div>
-            <div class="field">
-              <label>Skills Pack ID</label>
-              <input type="number" formControlName="skillsId">
             </div>
-            <div class="field">
-              <label>Maps Pack ID</label>
-              <input type="number" formControlName="mapsId">
-            </div>
-            <div class="field">
-              <label>Currency ID</label>
-              <input type="number" formControlName="currencyId">
-            </div>
-            <div class="field">
-              <label>Races Pack ID</label>
-              <input type="number" formControlName="racesId">
-            </div>
-            <div class="field">
-              <label>Classes Pack ID (Optional)</label>
-              <input type="number" formControlName="classesId">
-            </div>
-          </div>
 
           <div class="form-actions">
             <button type="submit" [disabled]="systemForm.invalid" class="btn-save">
@@ -94,4 +136,3 @@
       }
     </section>
   </main>
-</div>
