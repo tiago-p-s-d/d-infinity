@@ -29,7 +29,14 @@ services:
       - "5000:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=db;Database=d_infinity_db;Uid=root;Pwd=db_infinity;
+      - ConnectionStrings__DefaultConnection=Server=db;Database=${DB_NAME};Uid=root;Pwd=${DB_ROOT_PASSWORD};
+      - Jwt__Key=${JWT_KEY}
+      - Jwt__Issuer=${JWT_ISSUER}
+      - Jwt__Audience=${JWT_AUDIENCE}
+      - Email__User=${EMAIL_USER}
+      - Email__Pass=${EMAIL_PASS}
+      - Email__Host=${EMAIL_HOST}
+      - Email__Port=${EMAIL_PORT}
     depends_on:
       - db
 
