@@ -2,6 +2,7 @@ using Api.Models;
 using Api.Models.Gameplay;
 using Api.Models.Gameplay.Groups;
 using Microsoft.EntityFrameworkCore;
+using Api.Models.User;
 
 namespace Api.Data;
 
@@ -9,7 +10,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 {
 
     public DbSet<User> Users { get; set; } = null!;
-    
+    public DbSet<UserVerification> UserVerifications { get; set; } = null!;
 
     public DbSet<Campaign> Campaigns { get; set; } = null!;
     public DbSet<CampaignUser> CampaignMembers { get; set; } = null!;
@@ -26,6 +27,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Item> Items { get; set; } = null!;
     public DbSet<Inventory> Inventories { get; set; } = null!;
     public DbSet<InventoryItem> InventoryItems { get; set; } = null!;
+    public DbSet<ClassModel> Classes { get; set; } = null!;
+    public DbSet<ClassGroup> ClassGroups { get; set; } = null!;
 
     public DbSet<Skill> Skills { get; set; } = null!;
     public DbSet<KnownSkill> KnownSkills { get; set; } = null!;

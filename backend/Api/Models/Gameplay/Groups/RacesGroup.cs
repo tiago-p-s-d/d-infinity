@@ -17,5 +17,5 @@ public class RaceGroup
     [Column("description")]
     public string? Description { get; set; }
 
-    public virtual ICollection<Race> Races { get; set; } = new List<Race>();
+    public virtual ICollection<Race> Races { get; set; } = [];
 }

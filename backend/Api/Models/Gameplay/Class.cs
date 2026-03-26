@@ -1,13 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Api.Models.Gameplay.Groups; 
+using Api.Models.Gameplay.Groups;
 
 namespace Api.Models.Gameplay;
 using Api.Models.User;
 
-
-[Table("spells")]
-public class Spell
+[Table("classes")]
+public class ClassModel
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -20,18 +19,18 @@ public class Spell
     [Column("about")]
     public string? About { get; set; }
 
-    [Column("effect", TypeName = "json")]
-    public string Effect { get; set; } = "{}";
+    [Column("definitions", TypeName = "json")]
+    public string Definitions { get; set; } = "[]"; 
 
-    [Column("spell_group_id")]
-    public int SpellGroupId { get; set; }
+    [Column("class_group_id")]
+    public int ClassGroupId { get; set; }
 
-    [ForeignKey("SpellGroupId")]
-    public virtual SpellGroup? Group { get; set; }
+    [ForeignKey("ClassGroupId")]
+    public virtual ClassGroup? Group { get; set; }
 
     [Column("created_by")]
     public int CreatedBy { get; set; }
 
     [ForeignKey("CreatedBy")]
-    public User? Creator { get; set; }
+    public virtual User? Creator { get; set; }
 }

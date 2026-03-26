@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Api.Models.Gameplay.Groups;
 
 namespace Api.Models.Gameplay;
+using Api.Models.User;
 
 [Table("items")]
 public class Item

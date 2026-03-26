@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 
 namespace Api.Models.Gameplay;
+using Api.Models.User;
 
 [Table("maps")]
 public class MapModel

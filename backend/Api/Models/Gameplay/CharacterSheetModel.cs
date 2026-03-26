@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Collections.Generic;
+
 
 namespace Api.Models.Gameplay;
+using Api.Models.User;
 
 [Table("character_sheet_models")]
 public class CharacterSheetModel

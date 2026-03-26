@@ -17,5 +17,5 @@ public class ItemGroup
     [Column("description")]
     public string? Description { get; set; }
 
-    public virtual ICollection<Item> Items { get; set; } = new List<Item>();
+    public virtual ICollection<Item> Items { get; set; } = [];
 }

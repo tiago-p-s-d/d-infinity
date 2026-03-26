@@ -17,5 +17,5 @@ public class SpellGroup
 
     [Column("description")]
     public string? Description { get; set; }
-    public virtual ICollection<Spell> Spells { get; set; } = new List<Spell>();
+    public virtual ICollection<Spell> Spells { get; set; } = [];
 }

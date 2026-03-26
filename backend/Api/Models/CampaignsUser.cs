@@ -1,5 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Api.Models.User;
+
+using UserEntity = Api.Models.User.User;
 
 namespace Api.Models;
 
@@ -13,7 +16,7 @@ public class CampaignUser
 
     [Column("id_user")]
     public int UserId { get; set; }
-    public virtual User User { get; set; } = null!;
+    public virtual UserEntity User { get; set; } = null!;
 
     [Column("id_campaign")]
     public int CampaignId { get; set; }

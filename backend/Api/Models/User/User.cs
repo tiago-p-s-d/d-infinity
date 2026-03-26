@@ -1,10 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Api.Models.Gameplay.Groups;
+namespace Api.Models.User;
 
-[Table("skill_groups")]
-public class SkillGroup
+[Table("users")]
+public class User 
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -14,8 +14,9 @@ public class SkillGroup
     [Column("name")]
     public required string Name { get; set; }
 
-    [Column("description")]
-    public string? Description { get; set; }
+    [Column("email")]
+    public required string Email { get; set; }
 
-    public virtual ICollection<Skill> Skills { get; set; } = [];
+    [Column("password_hash")]
+    public required string PasswordHash { get; set; }
 }

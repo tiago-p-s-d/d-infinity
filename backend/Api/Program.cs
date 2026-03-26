@@ -4,17 +4,38 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer; 
 using Microsoft.IdentityModel.Tokens; 
 using System.Text; 
-using System.Text.Json.Serialization; // Adicionado para o ReferenceHandler
+using System.Text.Json.Serialization; 
+using Api.Infrastructure;
 
+// Limpeza de mapeamento de claims
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.Clear();
 
 var builder = WebApplication.CreateBuilder(args);
 
+// --- FORÇAR CARREGAMENTO DE SEGREDOS ---
+// Garante que o .NET procure nos User Secrets se estiver em ambiente de desenvolvimento
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddUserSecrets<Program>();
+}
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 0))));
+
+// --- VALIDAÇÃO DE CONFIGURAÇÃO JWT ---
+// Pegamos os valores e validamos antes de configurar o serviço
+var jwtKey = builder.Configuration["Jwt:Key"];
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "d-infinity-api";
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "d-infinity-angular";
+
+if (string.IsNullOrEmpty(jwtKey))
+{
+    // Se você ver este erro no console, rode: export ASPNETCORE_ENVIRONMENT=Development
+    throw new InvalidOperationException("FATAL: JWT Key is missing from configuration (User Secrets/Env Vars).");
+}
 
 builder.Services.AddAuthentication(options =>
 {
@@ -29,15 +50,14 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
     };
 });
 
 builder.Services.AddAuthorization(); 
 
-// CORREÇÃO AQUI: Adicionado AddJsonOptions para ignorar ciclos de objeto
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -54,6 +74,9 @@ builder.Services.AddCors(options => {
             .AllowAnyMethod();
     });
 });
+
+// Registro do Serviço de E-mail
+builder.Services.AddScoped<EmailService>();
 
 var app = builder.Build();
 
