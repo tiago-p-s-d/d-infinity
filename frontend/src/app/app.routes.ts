@@ -12,6 +12,7 @@ import { Spells } from './components/gameplay/spells/spells';
 import { Races } from './components/gameplay/races/races';
 import { CharacterSheet } from './components/gameplay/character-sheet/character-sheet';
 import { Currency } from './components/gameplay/currency/currency';
+import { Classes } from './components/gameplay/classes/classes';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -27,6 +28,8 @@ export const routes: Routes = [
   { path: 'dm/races', component: Races, canActivate: [authGuard]},
   { path: 'dm/character-sheets', component: CharacterSheet, canActivate: [authGuard]},
   { path: 'dm/currency', component: Currency, canActivate: [authGuard]},
+  { path: 'dm/classes', component: Classes, canActivate: [authGuard]},
+
 
   
 

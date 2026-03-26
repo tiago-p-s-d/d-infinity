@@ -2,6 +2,7 @@
   <app-header></app-header>
 
   <main class="systems-container">
+    
     @if (isAdding) {
       <section class="form-section">
         <header class="section-header">
@@ -37,7 +38,7 @@
             </div>
 
             <div class="field full-width">
-              <label>Items Packs (Hold Ctrl to select multiple)</label>
+              <label>Items Packs <small>(Hold Ctrl/Cmd to select multiple)</small></label>
               <select formControlName="itemsId" multiple class="multi-select">
                 @for (i of itemsList(); track i.id) {
                   <option [value]="i.id">{{ i.name }}</option>
@@ -90,9 +91,10 @@
                 }
               </select>
             </div>
-            </div>
+          </div>
 
           <div class="form-actions">
+            <button type="button" class="btn-secondary" (click)="isAdding = false">Cancel</button>
             <button type="submit" [disabled]="systemForm.invalid" class="btn-save">
               Finalize System
             </button>
@@ -104,13 +106,13 @@
     <section class="list-section">
       <div class="section-header list-header-flex">
         <div class="title-text">
-        <h2>Your Systems</h2>
-        <p>Manage and edit your existing game rules.</p>
+          <h2>Your Systems</h2>
+          <p>Manage and edit your existing game rules.</p>
         </div>
         <button class="btn-primary" (click)="isAdding = !isAdding">
             {{ isAdding ? 'Cancel' : '+ Create New System' }}
         </button>
-    </div>
+      </div>
 
       @if (systems.length === 0) {
         <div class="empty-state">
@@ -122,13 +124,27 @@
             <div class="system-card">
               <div class="card-body">
                 <h3>{{ s.name }}</h3>
-                <div class="stats-mini">
-                  <span>Races: {{ s.racesId }}</span>
-                  <span>Spells: {{ s.spellsId }}</span>
+                
+                <div class="packs-summary">
+                  <span class="pack-badge">
+                    <strong>Races:</strong> {{ s.racesId?.length || 0 }}
+                  </span>
+                  <span class="pack-badge">
+                    <strong>Spells:</strong> {{ s.spellsId?.length || 0 }}
+                  </span>
+                  <span class="pack-badge">
+                    <strong>Items:</strong> {{ s.itemsId?.length || 0 }}
+                  </span>
+                  <span class="pack-badge">
+                    <strong>Skills:</strong> {{ s.skillsId?.length || 0 }}
+                  </span>
                 </div>
               </div>
+              
               <div class="card-footer">
-                <button class="btn-edit">Configure</button>
+                <button class="btn-edit">
+                  <i class="icon-settings"></i> Configure
+                </button>
               </div>
             </div>
           }
@@ -136,3 +152,4 @@
       }
     </section>
   </main>
+</div>

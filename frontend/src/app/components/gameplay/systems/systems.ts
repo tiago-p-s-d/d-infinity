@@ -2,18 +2,17 @@ import { Component, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule, Location } from '@angular/common';
 import { Header } from '../../layout/header/header';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
+
+
+import { ItemGroupService } from '../../../services/gameplay/items/group/item-group-service';
+import { SpellGroupService } from '../../../services/gameplay/spells/group/spells-group-service';
+import { RacesGroupService } from '../../../services/gameplay/races/group/races-group-service';
+import { SkillGroupService } from '../../../services/gameplay/skills/group/skill-group-service';
 
 import { SheetService } from '../../../services/gameplay/character-sheet/sheet-service';
 import { CurrencyService } from '../../../services/gameplay/currency/currency-service';
-import { ItemService } from '../../../services/gameplay/items/item-service';
-import { SpellService } from '../../../services/gameplay/spells/spell-service';
-
-import { RaceService } from '../../../services/gameplay/races/race-service';
-import { SkillService } from '../../../services/gameplay/skills/skill-service';
-import { MapService } from '../../../services/gameplay/maps/map-service';
-import { ClassService } from '../../../services/gameplay/classes/class-service'; 
 
 @Component({
   selector: 'app-systems',
@@ -27,13 +26,13 @@ export class Systems implements OnInit {
   systemForm!: FormGroup;
   isAdding = false;
 
-  
   sheets = signal<any[]>([]);
   currencies = signal<any[]>([]);
   itemsList = signal<any[]>([]);
   spellsList = signal<any[]>([]);
   racesList = signal<any[]>([]);
   skillsList = signal<any[]>([]);
+  
   mapsList = signal<any[]>([]);
   classesList = signal<any[]>([]); 
 
@@ -43,18 +42,21 @@ export class Systems implements OnInit {
     private location: Location,
     private sheetService: SheetService,
     private currencyService: CurrencyService,
-    private itemService: ItemService,
-    private spellService: SpellService,
-    private raceService: RaceService,
-    private skillService: SkillService,
-    private mapService: MapService,
-    private classService: ClassService 
+    private itemGroupService: ItemGroupService, 
+    private spellGroupService: SpellGroupService, 
+    private raceGroupService: RacesGroupService,   
+    private skillGroupService: SkillGroupService  
   ) { }
 
   ngOnInit() {
     this.initForm();
     this.loadSystems();
-    this.loadAllOptions();
+    this.loadAllPacks();
+  }
+
+  private getHeaders() {
+    const token = localStorage.getItem('token');
+    return new HttpHeaders({ 'Authorization': `Bearer ${token}` });
   }
 
   initForm() {
@@ -71,19 +73,19 @@ export class Systems implements OnInit {
     });
   }
 
-  loadAllOptions() {
+  loadAllPacks() {
+
     this.sheetService.getsheets().subscribe(data => this.sheets.set(data));
     this.currencyService.getCurrencies().subscribe(data => this.currencies.set(data));
-    this.itemService.getItems().subscribe(data => this.itemsList.set(data));
-    this.spellService.getSpells().subscribe(data => this.spellsList.set(data));
-    this.raceService.getRaces().subscribe(data => this.racesList.set(data));
-    this.skillService.getSkills().subscribe(data => this.skillsList.set(data));
-    this.mapService.getMaps().subscribe((data: any[]) => this.mapsList.set(data));
-    this.classService.getClasses().subscribe(data => this.classesList.set(data)); 
+    
+    this.itemGroupService.getGroups().subscribe(data => this.itemsList.set(data));
+    this.spellGroupService.getGroups().subscribe(data => this.spellsList.set(data));
+    this.raceGroupService.getGroups().subscribe(data => this.racesList.set(data));
+    this.skillGroupService.getGroups().subscribe(data => this.skillsList.set(data));
   }
 
   loadSystems() {
-    this.http.get<any[]>(`${environment.apiUrl}/api/system`).subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/api/system`, { headers: this.getHeaders() }).subscribe({
       next: (data) => this.systems = data,
       error: (err) => console.error('Error loading systems:', err)
     });
@@ -93,10 +95,8 @@ export class Systems implements OnInit {
     if (this.systemForm.valid) {
       const payload = { ...this.systemForm.value };
 
-      console.log('Sending System Payload:', payload);
-
-      this.http.post(`${environment.apiUrl}/api/system`, payload).subscribe({
-        next: (res) => {
+      this.http.post(`${environment.apiUrl}/api/system`, payload, { headers: this.getHeaders() }).subscribe({
+        next: () => {
           this.isAdding = false;
           this.loadSystems();
           this.resetForm();
@@ -117,9 +117,5 @@ export class Systems implements OnInit {
       mapsId: [],
       classesId: null
     });
-  }
-
-  goBack() {
-    this.location.back();
   }
 }

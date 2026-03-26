@@ -16,6 +16,16 @@ export class Auth {
     this.refreshUser();
   }
 
+  sendCode(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/send-code`, JSON.stringify(email), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  verifyCode(email: string, code: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/verify-code`, { email, code });
+  }
+
   login(dados: any) {
     return this.http.post<any>(`${this.apiUrl}/login`, dados).pipe(
       tap(res => {
@@ -32,16 +42,21 @@ export class Auth {
     if (token) {
       try {
         const decoded: any = jwtDecode(token);
-
         this.userSubject.next({
-          id: decoded.sub,
+          id: decoded.id, 
           name: decoded.name,
           email: decoded.email
         });
       } catch (error) {
+        localStorage.removeItem('token');
         this.userSubject.next(null);
       }
     }
+  }
+
+  logout() {
+    localStorage.removeItem('token');
+    this.userSubject.next(null);
   }
 
   getUser() {

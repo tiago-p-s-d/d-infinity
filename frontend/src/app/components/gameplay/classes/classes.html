@@ -1,0 +1,102 @@
+<div class="systems-page">
+  <app-header></app-header>
+  <div class="systems-container">
+    
+    <div class="list-header-flex">
+      <div class="title-text">
+        <h2>Class Forge</h2>
+        <p>Define roles, hit dice, and progression paths for heroes.</p>
+      </div>
+    </div>
+
+    <section class="form-section" id="classFormSection">
+      <div class="section-header">
+        <h2>{{ isEditing ? 'Edit Class' : 'Create New Class' }}</h2>
+      </div>
+
+      <form [formGroup]="classForm" (ngSubmit)="onSubmit()" class="create-form">
+        <div class="grid-form">
+          <div class="field">
+            <label>Class Name</label>
+            <input type="text" formControlName="name" placeholder="Ex: Paladin, Netrunner">
+          </div>
+
+          <div class="field">
+            <label>Class Group (Pack)</label>
+            <div class="group-input-flex">
+              <select formControlName="classGroupId">
+                <option [ngValue]="null" disabled>Select a pack...</option>
+                @for (group of classGroups(); track group.id) {
+                  <option [ngValue]="group.id">{{ group.name }}</option>
+                }
+              </select>
+              <button type="button" class="btn-primary-sm" (click)="showGroupModal = true">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 2rem;">
+          <label class="builder-label">Class Traits & Progression (JSON)</label>
+          <app-field-builder [initialFields]="currentFields" (onSchemaChange)="updateSchema($event)">
+          </app-field-builder>
+        </div>
+
+        <div class="full-field">
+          <label>About / Background</label>
+          <input type="text" formControlName="about" placeholder="The role of this class in the world...">
+        </div>
+
+        <div class="form-actions">
+          @if (isEditing) {
+            <button type="button" class="btn-secondary" (click)="resetForm()">Cancel</button>
+          }
+          <button type="submit" class="btn-save" [disabled]="classForm.invalid">
+            {{ isEditing ? 'Save Changes' : 'Forge Class' }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    @if (showGroupModal) {
+      <div class="modal-overlay">
+        <div class="modal-content">
+          <h3>New Class Pack</h3>
+          <input type="text" #newGroupName placeholder="Group Name (Ex: Core Classes)">
+          <div class="modal-actions">
+            <button class="btn-secondary" (click)="showGroupModal = false">Cancel</button>
+            <button class="btn-save" (click)="saveNewGroup(newGroupName.value)">Create</button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="systems-grid">
+      @for (cls of classes(); track cls.id) {
+        <div class="system-card">
+          <div class="card-header-flex">
+            <div class="title-badge-flex">
+              <h3>{{ cls.name }}</h3>
+              <span class="badge">{{ cls.group?.name }}</span>
+            </div>
+            <div class="card-actions">
+                    <app-edit-button (onClick)="onEdit(cls)"></app-edit-button>
+                    <app-delete-button (onClick)="onDelete(cls)"></app-delete-button>
+            </div>
+          </div>
+          
+          <p class="description-text">{{ cls.about || 'No background described.' }}</p>
+
+          <div class="stats-mini">
+            @for (def of parseDefinitions(cls.definitions); track def.label) {
+              <span><strong>{{ def.label }}:</strong> {{ def.value }}</span>
+            } @empty {
+              <span style="color: #666;">No traits defined.</span>
+            }
+          </div>
+        </div>
+      } @empty {
+        <p class="empty-msg">No classes forged yet.</p>
+      }
+    </div>
+  </div>
+</div>

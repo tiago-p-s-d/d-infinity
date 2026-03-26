@@ -1,18 +1,21 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-
 import { Auth } from '../../../services/auth/auth';
 
 @Component({
   selector: 'app-new-user',
-imports: [ReactiveFormsModule, RouterModule, CommonModule],
+  standalone: true,
+  imports: [ReactiveFormsModule, FormsModule, RouterModule, CommonModule],
   templateUrl: './new-user.html',
   styleUrl: './new-user.scss',
 })
 export class NewUser {
-userForm: FormGroup;
+  userForm: FormGroup;
+  isVerifying = false;
+  isLoading = false;
+  verificationCode = '';
 
   constructor(
     private fb: FormBuilder, 
@@ -26,15 +29,51 @@ userForm: FormGroup;
     });
   }
 
-  onSubmit() {
+  onSendCode() {
     if (this.userForm.valid) {
-      this.auth.register(this.userForm.value).subscribe({
+      this.isLoading = true;
+      const email = this.userForm.value.email;
+
+      this.auth.sendCode(email).subscribe({
         next: () => {
-          alert('User created successfully!');
-          this.router.navigate(['/login']);
+          this.isLoading = false;
+          this.isVerifying = true;
+          this.verificationCode = ''; // Limpa caso seja um re-envio
         },
-        error: (err) => alert('Error creating user: ' + err.error.message)
+        error: (err) => {
+          this.isLoading = false;
+          alert('Error: ' + (err.error?.message || 'Check your internet connection.'));
+        }
       });
     }
+  }
+
+  onVerifyAndRegister() {
+    if (this.verificationCode.length < 6) return;
+
+    this.isLoading = true;
+    const { email } = this.userForm.value;
+
+    this.auth.verifyCode(email, this.verificationCode).subscribe({
+      next: () => {
+        // Código válido! Agora chamamos o registro final
+        this.auth.register(this.userForm.value).subscribe({
+          next: () => {
+            this.isLoading = false;
+            alert('Welcome to D-Infinity Forge!');
+            this.router.navigate(['/login']);
+          },
+          error: (err) => {
+            this.isLoading = false;
+            alert('Registration error: ' + (err.error?.message || 'Check your database.'));
+          }
+        });
+      },
+      error: () => {
+        this.isLoading = false;
+        alert('Invalid or expired code. Please check your email.');
+        this.verificationCode = ''; // Limpa para o usuário tentar de novo
+      }
+    });
   }
 }
