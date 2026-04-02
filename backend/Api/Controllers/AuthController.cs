@@ -115,7 +115,7 @@ public class AuthController(AppDbContext context, IConfiguration config, EmailSe
     }
 }
 
-// DTOs
+
 public record VerifyRequest(string Email, string Code);
 
 public class RegisterDto {

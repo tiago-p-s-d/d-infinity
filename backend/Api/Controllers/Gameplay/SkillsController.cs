@@ -10,12 +10,10 @@ namespace Api.Controllers.Gameplay;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize] // Proteção global para o controller
+[Authorize] 
 public class SkillController(AppDbContext context) : ControllerBase
 {
     private readonly AppDbContext _context = context;
-
-    // --- SEÇÃO DE SKILLS (Perícias/Habilidades) ---
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Skill>>> GetMySkills()
@@ -24,7 +22,7 @@ public class SkillController(AppDbContext context) : ControllerBase
         if (userId == null) return Unauthorized();
 
         return await _context.Skills
-            .Include(s => s.Group) // Traz os dados do SkillGroup associado
+            .Include(s => s.Group) 
             .Where(s => s.CreatedBy == userId)
             .OrderByDescending(s => s.Id)
             .ToListAsync();
@@ -38,12 +36,11 @@ public class SkillController(AppDbContext context) : ControllerBase
 
         skill.CreatedBy = userId.Value;
         skill.Creator = null;
-        skill.Group = null; // Evita que o EF tente criar um novo grupo se o ID for enviado
+        skill.Group = null; 
 
         _context.Skills.Add(skill);
         await _context.SaveChangesAsync();
 
-        // Recarrega para incluir o objeto Group no retorno para o Frontend
         var newSkill = await _context.Skills
             .Include(s => s.Group)
             .FirstOrDefaultAsync(s => s.Id == skill.Id);
@@ -62,7 +59,6 @@ public class SkillController(AppDbContext context) : ControllerBase
         if (existingSkill == null) return NotFound();
         if (existingSkill.CreatedBy != userId) return Forbid();
 
-        // Atualização dos campos
         existingSkill.Name = skill.Name;
         existingSkill.About = skill.About;
         existingSkill.Effect = skill.Effect;
@@ -89,15 +85,13 @@ public class SkillController(AppDbContext context) : ControllerBase
         return NoContent();
     }
 
-    // --- SEÇÃO DE GRUPOS (Skill Groups) ---
-
-    [HttpGet("groups")] // Rota: GET api/skill/groups
+    [HttpGet("groups")] 
     public async Task<ActionResult<IEnumerable<SkillGroup>>> GetGroups()
     {
         return await _context.SkillGroups.ToListAsync();
     }
 
-    [HttpPost("groups")] // Rota: POST api/skill/groups
+    [HttpPost("groups")] 
     public async Task<ActionResult<SkillGroup>> CreateGroup([FromBody] SkillGroup group)
     {
         if (string.IsNullOrEmpty(group.Name)) return BadRequest("Name is required");
@@ -108,7 +102,6 @@ public class SkillController(AppDbContext context) : ControllerBase
         return Ok(group);
     }
 
-    // --- HELPER ---
 
     private int? GetUserId()
     {

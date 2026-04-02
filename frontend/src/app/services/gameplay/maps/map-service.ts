@@ -7,9 +7,9 @@ import { environment } from '../../../../environments/environment';
   providedIn: 'root',
 })
 export class MapService {
-  private apiUrl = `${environment.apiUrl}/api/map`;
+  private apiUrl = `${environment.apiUrl}/Maps`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getMaps(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);

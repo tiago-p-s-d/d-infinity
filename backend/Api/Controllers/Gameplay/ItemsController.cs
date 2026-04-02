@@ -3,29 +3,23 @@ using Api.Models.Gameplay;
 using Api.Models.Gameplay.Groups;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 
 namespace Api.Controllers.Gameplay;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize] 
-public class ItemController(AppDbContext context) : ControllerBase
+public class ItemController(AppDbContext context) : BaseGameplayController
 {
     private readonly AppDbContext _context = context;
-
-    // --- ITENS ---
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Item>>> GetMyItems()
     {
         var userId = GetUserId();
-        if (userId == null) return Unauthorized();
-
+        
         return await _context.Items
-            .Include(i => i.Group) // Fundamental para mostrar o nome do grupo no card
-            .Where(i => i.CreatedBy == userId)
+            .Include(i => i.Group) 
+            .Where(i => i.CreatedBy == userId) 
             .OrderByDescending(i => i.Id) 
             .ToListAsync();
     }
@@ -34,16 +28,14 @@ public class ItemController(AppDbContext context) : ControllerBase
     public async Task<ActionResult<Item>> CreateItem(Item item)
     {
         var userId = GetUserId();
-        if (userId == null) return Unauthorized();
 
-        item.CreatedBy = userId.Value;
+        item.CreatedBy = userId;
         item.Creator = null; 
-        item.Group = null; // Evita que o EF tente criar um grupo novo se vier ID no JSON
+        item.Group = null; 
 
         _context.Items.Add(item);
         await _context.SaveChangesAsync();
 
-        // Recarrega para trazer o nome do Grupo no retorno para o Frontend
         var newItem = await _context.Items
             .Include(i => i.Group)
             .FirstOrDefaultAsync(i => i.Id == item.Id);
@@ -51,7 +43,6 @@ public class ItemController(AppDbContext context) : ControllerBase
         return Ok(newItem);
     }
 
-    // FALTA: Update (Para o botão Edit do Frontend)
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateItem(int id, Item item)
     {
@@ -70,7 +61,6 @@ public class ItemController(AppDbContext context) : ControllerBase
         return Ok(existingItem);
     }
 
-    // FALTA: Delete (Para o botão Delete do Frontend)
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteItem(int id)
     {
@@ -85,12 +75,13 @@ public class ItemController(AppDbContext context) : ControllerBase
         return NoContent();
     }
 
-    // --- GRUPOS ---
-
     [HttpGet("groups")] 
     public async Task<ActionResult<IEnumerable<ItemGroup>>> GetGroups()
     {
-        return await _context.ItemGroups.ToListAsync();
+        var userId = GetUserId();
+        return await _context.ItemGroups
+            .Where(g => g.CreatedBy == userId)
+            .ToListAsync();
     }
 
     [HttpPost("groups")] 
@@ -98,15 +89,12 @@ public class ItemController(AppDbContext context) : ControllerBase
     {
         if (string.IsNullOrEmpty(group.Name)) return BadRequest("Name is required");
 
+        var userId = GetUserId();
+        group.CreatedBy = userId;
+
         _context.ItemGroups.Add(group);
         await _context.SaveChangesAsync();
 
         return Ok(group);
-    }
-
-    private int? GetUserId()
-    {
-        var claim = User.FindFirst("id")?.Value ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        return int.TryParse(claim, out int id) ? id : null;
     }
 }

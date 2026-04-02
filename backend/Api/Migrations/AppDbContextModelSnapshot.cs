@@ -192,12 +192,18 @@ namespace Api.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("name");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
 
                     b.ToTable("currencies");
                 });
@@ -240,6 +246,10 @@ namespace Api.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
                     b.Property<string>("Description")
                         .HasColumnType("longtext")
                         .HasColumnName("description");
@@ -250,6 +260,8 @@ namespace Api.Migrations
                         .HasColumnName("name");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
 
                     b.ToTable("class_groups");
                 });
@@ -263,6 +275,10 @@ namespace Api.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
                     b.Property<string>("Description")
                         .HasColumnType("longtext")
                         .HasColumnName("description");
@@ -274,7 +290,38 @@ namespace Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedBy");
+
                     b.ToTable("item_groups");
+                });
+
+            modelBuilder.Entity("Api.Models.Gameplay.Groups.MapGroup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.ToTable("map_groups");
                 });
 
             modelBuilder.Entity("Api.Models.Gameplay.Groups.RaceGroup", b =>
@@ -286,6 +333,10 @@ namespace Api.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
                     b.Property<string>("Description")
                         .HasColumnType("longtext")
                         .HasColumnName("description");
@@ -296,6 +347,8 @@ namespace Api.Migrations
                         .HasColumnName("name");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
 
                     b.ToTable("race_groups");
                 });
@@ -309,6 +362,10 @@ namespace Api.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
                     b.Property<string>("Description")
                         .HasColumnType("longtext")
                         .HasColumnName("description");
@@ -319,6 +376,8 @@ namespace Api.Migrations
                         .HasColumnName("name");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
 
                     b.ToTable("skill_groups");
                 });
@@ -332,6 +391,10 @@ namespace Api.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
                     b.Property<string>("Description")
                         .HasColumnType("longtext")
                         .HasColumnName("description");
@@ -342,6 +405,8 @@ namespace Api.Migrations
                         .HasColumnName("name");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
 
                     b.ToTable("spell_groups");
                 });
@@ -488,13 +553,16 @@ namespace Api.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CampaignId")
-                        .HasColumnType("int")
-                        .HasColumnName("campaign_id");
+                    b.Property<int?>("CampaignId")
+                        .HasColumnType("int");
 
                     b.Property<int>("CreatedBy")
                         .HasColumnType("int")
                         .HasColumnName("created_by");
+
+                    b.Property<int?>("MapGroupId")
+                        .HasColumnType("int")
+                        .HasColumnName("map_group_id");
 
                     b.Property<string>("MapImage")
                         .IsRequired()
@@ -511,6 +579,8 @@ namespace Api.Migrations
                     b.HasIndex("CampaignId");
 
                     b.HasIndex("CreatedBy");
+
+                    b.HasIndex("MapGroupId");
 
                     b.ToTable("maps");
                 });
@@ -826,6 +896,17 @@ namespace Api.Migrations
                     b.Navigation("Group");
                 });
 
+            modelBuilder.Entity("Api.Models.Gameplay.Currency", b =>
+                {
+                    b.HasOne("Api.Models.User.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Creator");
+                });
+
             modelBuilder.Entity("Api.Models.Gameplay.CurrencyValue", b =>
                 {
                     b.HasOne("Api.Models.Gameplay.Currency", "Currency")
@@ -835,6 +916,60 @@ namespace Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Currency");
+                });
+
+            modelBuilder.Entity("Api.Models.Gameplay.Groups.ClassGroup", b =>
+                {
+                    b.HasOne("Api.Models.User.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy");
+
+                    b.Navigation("Creator");
+                });
+
+            modelBuilder.Entity("Api.Models.Gameplay.Groups.ItemGroup", b =>
+                {
+                    b.HasOne("Api.Models.User.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy");
+
+                    b.Navigation("Creator");
+                });
+
+            modelBuilder.Entity("Api.Models.Gameplay.Groups.MapGroup", b =>
+                {
+                    b.HasOne("Api.Models.User.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy");
+
+                    b.Navigation("Creator");
+                });
+
+            modelBuilder.Entity("Api.Models.Gameplay.Groups.RaceGroup", b =>
+                {
+                    b.HasOne("Api.Models.User.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy");
+
+                    b.Navigation("Creator");
+                });
+
+            modelBuilder.Entity("Api.Models.Gameplay.Groups.SkillGroup", b =>
+                {
+                    b.HasOne("Api.Models.User.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy");
+
+                    b.Navigation("Creator");
+                });
+
+            modelBuilder.Entity("Api.Models.Gameplay.Groups.SpellGroup", b =>
+                {
+                    b.HasOne("Api.Models.User.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy");
+
+                    b.Navigation("Creator");
                 });
 
             modelBuilder.Entity("Api.Models.Gameplay.InventoryItem", b =>
@@ -907,11 +1042,9 @@ namespace Api.Migrations
 
             modelBuilder.Entity("Api.Models.Gameplay.MapModel", b =>
                 {
-                    b.HasOne("Api.Models.Campaign", "Campaign")
+                    b.HasOne("Api.Models.Campaign", null)
                         .WithMany("Maps")
-                        .HasForeignKey("CampaignId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CampaignId");
 
                     b.HasOne("Api.Models.User.User", "Creator")
                         .WithMany()
@@ -919,9 +1052,13 @@ namespace Api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Campaign");
+                    b.HasOne("Api.Models.Gameplay.Groups.MapGroup", "MapGroup")
+                        .WithMany("Maps")
+                        .HasForeignKey("MapGroupId");
 
                     b.Navigation("Creator");
+
+                    b.Navigation("MapGroup");
                 });
 
             modelBuilder.Entity("Api.Models.Gameplay.Race", b =>
@@ -1024,6 +1161,11 @@ namespace Api.Migrations
             modelBuilder.Entity("Api.Models.Gameplay.Groups.ItemGroup", b =>
                 {
                     b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("Api.Models.Gameplay.Groups.MapGroup", b =>
+                {
+                    b.Navigation("Maps");
                 });
 
             modelBuilder.Entity("Api.Models.Gameplay.Groups.RaceGroup", b =>

@@ -30,23 +30,26 @@ export class NewUser {
   }
 
   onSendCode() {
-    if (this.userForm.valid) {
-      this.isLoading = true;
-      const email = this.userForm.value.email;
+  if (this.userForm.invalid) return;
 
-      this.auth.sendCode(email).subscribe({
-        next: () => {
-          this.isLoading = false;
-          this.isVerifying = true;
-          this.verificationCode = ''; // Limpa caso seja um re-envio
-        },
-        error: (err) => {
-          this.isLoading = false;
-          alert('Error: ' + (err.error?.message || 'Check your internet connection.'));
-        }
-      });
+  // Change screen immediately to avoid UI hanging
+  this.isVerifying = true; 
+  const { email } = this.userForm.value;
+
+  console.log('Sending request for:', email);
+
+  this.auth.sendCode(email).subscribe({
+    next: (res) => {
+      console.log('Server acknowledged:', res);
+      // Even if it takes time, the user is already on the code screen
+    },
+    error: (err) => {
+      console.error('Request failed:', err);
+      // Optional: if it fails miserably, go back or alert
+      alert('Fill in the code once you receive it in your inbox.');
     }
-  }
+  });
+}
 
   onVerifyAndRegister() {
     if (this.verificationCode.length < 6) return;
@@ -54,25 +57,30 @@ export class NewUser {
     this.isLoading = true;
     const { email } = this.userForm.value;
 
+    console.log('Verifying code...');
     this.auth.verifyCode(email, this.verificationCode).subscribe({
       next: () => {
-        // Código válido! Agora chamamos o registro final
+        console.log('Code verified! Proceeding to registration...');
+        
         this.auth.register(this.userForm.value).subscribe({
           next: () => {
             this.isLoading = false;
+            console.log('Registration successful!');
             alert('Welcome to D-Infinity Forge!');
             this.router.navigate(['/login']);
           },
           error: (err) => {
             this.isLoading = false;
-            alert('Registration error: ' + (err.error?.message || 'Check your database.'));
+            console.error('Registration failed:', err);
+            alert('Registration error: ' + (err.error?.message || 'Internal server error.'));
           }
         });
       },
-      error: () => {
+      error: (err) => {
         this.isLoading = false;
-        alert('Invalid or expired code. Please check your email.');
-        this.verificationCode = ''; // Limpa para o usuário tentar de novo
+        console.error('Verification failed:', err);
+        alert('Invalid or expired code. Please check your inbox.');
+        this.verificationCode = ''; 
       }
     });
   }

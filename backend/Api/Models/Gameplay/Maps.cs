@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
+using System.Text.Json.Serialization; 
+using Api.Models.Gameplay.Groups;
+using UserEntity = Api.Models.User.User;
 
 namespace Api.Models.Gameplay;
-using Api.Models.User;
 
 [Table("maps")]
 public class MapModel
@@ -19,16 +20,16 @@ public class MapModel
     [Column("map_image")]
     public required string MapImage { get; set; }
 
-    [Column("campaign_id")]
-    public int CampaignId { get; set; }
-
-    [ForeignKey("CampaignId")]
-
-    public virtual Campaign? Campaign { get; set; } 
-
     [Column("created_by")]
     public int CreatedBy { get; set; }
 
     [ForeignKey("CreatedBy")]
-    public User? Creator { get; set; }
+    public UserEntity? Creator { get; set; }
+
+    [Column("map_group_id")]
+    public int? MapGroupId { get; set; }
+
+    [ForeignKey("MapGroupId")]
+    [JsonIgnore] 
+    public virtual MapGroup? MapGroup { get; set; }
 }

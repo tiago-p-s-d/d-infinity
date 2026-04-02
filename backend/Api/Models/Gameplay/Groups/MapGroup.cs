@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using UserEntity = Api.Models.User.User;
 
 namespace Api.Models.Gameplay.Groups;
 
-[Table("skill_groups")]
-public class SkillGroup
+[Table("map_groups")]
+public class MapGroup
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -23,7 +24,7 @@ public class SkillGroup
 
     [ForeignKey("CreatedBy")]
     [JsonIgnore]
-    public virtual Api.Models.User.User? Creator { get; set; }
+    public virtual UserEntity? Creator { get; set; }
 
-    public virtual ICollection<Skill> Skills { get; set; } = [];
+    public virtual ICollection<MapModel> Maps { get; set; } = [];
 }

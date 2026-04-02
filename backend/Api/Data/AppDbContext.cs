@@ -20,6 +20,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<CharacterSheetModel> CharacterSheetModels { get; set; } = null!;
     public DbSet<Race> Races { get; set; } = null!;
     public DbSet<MapModel> Maps { get; set; } = null!;
+    public DbSet<MapGroup> MapGroups { get; set; } = null!;
     public DbSet<SpellGroup> SpellGroups { get; set; } = null!;
     public DbSet<RaceGroup> RaceGroups { get; set; } = null!;
     public DbSet<ItemGroup> ItemGroups { get; set; } = null!;
@@ -29,7 +30,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<InventoryItem> InventoryItems { get; set; } = null!;
     public DbSet<ClassModel> Classes { get; set; } = null!;
     public DbSet<ClassGroup> ClassGroups { get; set; } = null!;
-
     public DbSet<Skill> Skills { get; set; } = null!;
     public DbSet<KnownSkill> KnownSkills { get; set; } = null!;
     public DbSet<Spell> Spells { get; set; } = null!;
@@ -45,11 +45,5 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
 
-
-        modelBuilder.Entity<MapModel>()
-            .HasOne(m => m.Campaign)
-            .WithMany(c => c.Maps)
-            .HasForeignKey(m => m.CampaignId)
-            .OnDelete(DeleteBehavior.Cascade);
     }
 }

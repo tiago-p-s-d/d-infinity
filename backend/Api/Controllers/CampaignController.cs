@@ -2,7 +2,7 @@ using Api.Data;
 using Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization; // Necessário para o [Authorize]
+using Microsoft.AspNetCore.Authorization; 
 
 namespace Api.Controllers;
 

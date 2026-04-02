@@ -39,7 +39,6 @@ export class Systems implements OnInit {
   constructor(
     private fb: FormBuilder, 
     private http: HttpClient, 
-    private location: Location,
     private sheetService: SheetService,
     private currencyService: CurrencyService,
     private itemGroupService: ItemGroupService, 

@@ -44,16 +44,21 @@ public class ClassController(AppDbContext context) : ControllerBase
         return Ok(result);
     }
 
-
     [HttpGet("groups")]
     public async Task<ActionResult<IEnumerable<ClassGroup>>> GetGroups()
     {
-        return await _context.ClassGroups.ToListAsync();
+        var userId = GetUserId();
+        return await _context.ClassGroups
+            .Where(g => g.CreatedBy == userId)
+            .ToListAsync();
     }
 
     [HttpPost("groups")]
     public async Task<ActionResult<ClassGroup>> CreateGroup([FromBody] ClassGroup group)
     {
+        var userId = GetUserId();
+        group.CreatedBy = userId ?? 0;
+        
         _context.ClassGroups.Add(group);
         await _context.SaveChangesAsync();
         return Ok(group);

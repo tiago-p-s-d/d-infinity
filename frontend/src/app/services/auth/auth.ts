@@ -17,6 +17,7 @@ export class Auth {
   }
 
   sendCode(email: string): Observable<any> {
+    // Keep this exact format since your Backend expects a raw JSON-quoted string
     return this.http.post(`${this.apiUrl}/send-code`, JSON.stringify(email), {
       headers: { 'Content-Type': 'application/json' }
     });
@@ -26,8 +27,8 @@ export class Auth {
     return this.http.post(`${this.apiUrl}/verify-code`, { email, code });
   }
 
-  login(dados: any) {
-    return this.http.post<any>(`${this.apiUrl}/login`, dados).pipe(
+  login(credentials: any) {
+    return this.http.post<any>(`${this.apiUrl}/login`, credentials).pipe(
       tap(res => {
         if (res.token) {
           localStorage.setItem('token', res.token);
@@ -63,7 +64,7 @@ export class Auth {
     return this.userSubject.value;
   }
 
-  register(dados: any) {
-    return this.http.post(`${this.apiUrl}/register`, dados);
+  register(userData: any) {
+    return this.http.post(`${this.apiUrl}/register`, userData);
   }
 }
