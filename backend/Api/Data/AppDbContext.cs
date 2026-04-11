@@ -8,7 +8,6 @@ namespace Api.Data;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<UserVerification> UserVerifications { get; set; } = null!;
 
@@ -16,6 +15,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<CampaignUser> CampaignMembers { get; set; } = null!;
 
     public DbSet<SystemModel> Systems { get; set; } = null!;        
+    public DbSet<SystemRaceGroup> SystemRaceGroups { get; set; } = null!;
+    public DbSet<SystemItemGroup> SystemItemGroups { get; set; } = null!;
+    public DbSet<SystemSpellGroup> SystemSpellGroups { get; set; } = null!;
+    public DbSet<SystemSkillGroup> SystemSkillGroups { get; set; } = null!;
+    public DbSet<SystemMapGroup> SystemMapGroups { get; set; } = null!;
     public DbSet<CharacterSheet> CharacterSheets { get; set; } = null!;
     public DbSet<CharacterSheetModel> CharacterSheetModels { get; set; } = null!;
     public DbSet<Race> Races { get; set; } = null!;
@@ -41,9 +45,31 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+        
+        modelBuilder.Entity<SystemRaceGroup>()
+            .HasIndex(e => new { e.SystemId, e.RaceGroupId }).IsUnique();
 
+        modelBuilder.Entity<SystemItemGroup>()
+            .HasIndex(e => new { e.SystemId, e.ItemGroupId }).IsUnique();
+
+        modelBuilder.Entity<SystemSpellGroup>()
+            .HasIndex(e => new { e.SystemId, e.SpellGroupId }).IsUnique();
+
+        modelBuilder.Entity<SystemSkillGroup>()
+            .HasIndex(e => new { e.SystemId, e.SkillGroupId }).IsUnique();
+
+        modelBuilder.Entity<SystemMapGroup>()
+            .HasIndex(e => new { e.SystemId, e.MapGroupId }).IsUnique();
+            
+
+        modelBuilder.Entity<SystemRaceGroup>()
+            .HasOne(e => e.System)
+            .WithMany(s => s.SystemRaces)
+            .HasForeignKey(e => e.SystemId)
+            .OnDelete(DeleteBehavior.Cascade);
+            
+        
     }
 }

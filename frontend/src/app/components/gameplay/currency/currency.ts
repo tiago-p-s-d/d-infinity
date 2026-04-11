@@ -5,10 +5,11 @@ import { FormatterUtils } from '../../../utils/formatters';
 import { EditButton } from '../../layout/edit-button/edit-button';
 import { DeleteButton } from '../../layout/delete-button/delete-button';
 import { CurrencyService } from '../../../services/gameplay/currency/currency-service';
+import { Header } from '../../layout/header/header';
 
 @Component({
   selector: 'app-currency',
-  imports: [CommonModule, ReactiveFormsModule, EditButton, DeleteButton],
+  imports: [Header, CommonModule, ReactiveFormsModule, EditButton, DeleteButton],
   templateUrl: './currency.html',
   styleUrl: './currency.scss',
 })

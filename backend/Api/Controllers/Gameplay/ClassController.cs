@@ -44,6 +44,50 @@ public class ClassController(AppDbContext context) : ControllerBase
         return Ok(result);
     }
 
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateClass(int id, ClassModel classModel)
+    {
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
+
+        var existingClass = await _context.Classes.FindAsync(id);
+
+        if (existingClass == null) return NotFound();
+        if (existingClass.CreatedBy != userId) return Forbid();
+
+        // Atualize os campos necessários da sua ClassModel aqui
+        existingClass.Name = classModel.Name;
+        existingClass.About = classModel.About;
+        existingClass.ClassGroupId = classModel.ClassGroupId;
+        // Se houver campos como Modifiers ou Effects, adicione-os aqui
+
+        await _context.SaveChangesAsync();
+        
+        // Retornamos o objeto atualizado com o grupo incluído para o frontend
+        var result = await _context.Classes
+            .Include(c => c.Group)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        return Ok(result);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteClass(int id)
+    {
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
+
+        var classEntry = await _context.Classes.FindAsync(id);
+
+        if (classEntry == null) return NotFound();
+        if (classEntry.CreatedBy != userId) return Forbid();
+
+        _context.Classes.Remove(classEntry);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
     [HttpGet("groups")]
     public async Task<ActionResult<IEnumerable<ClassGroup>>> GetGroups()
     {

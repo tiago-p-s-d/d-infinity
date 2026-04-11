@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Api.Models.User; // Namespace do usuário
+using Api.Models.Gameplay.Groups; 
 
 namespace Api.Models.Gameplay;
-using Api.Models.User;
-
 
 [Table("systems")]
 public class SystemModel
@@ -16,35 +16,18 @@ public class SystemModel
     [Column("name")]
     public required string Name { get; set; }
 
-    // Foreign Keys (IDs)
-    [Column("character_sheet_model_id")]
-    public int CharacterSheetId { get; set; }
-
-    [Column("items_id")]
-    public int ItemsId { get; set; }
-
-    [Column("spells_id")]
-    public int SpellsId { get; set; }
-
-    [Column("skills_id")]
-    public int SkillsId { get; set; }
-
-    [Column("maps_id")]
-    public int MapsId { get; set; }
-
-    [Column("currency_id")]
-    public int CurrencyId { get; set; }
-
-    [Column("races_id")]
-    public int RacesId { get; set; }
-
     [Column("created_by")]
     public int CreatedBy { get; set; }
 
     [ForeignKey("CreatedBy")]
-    public User? Creator { get; set; }
+    public Api.Models.User.User? Creator { get; set; }
 
-    //(Nullable)
+    [Column("character_sheet_model_id")]
+    public int CharacterSheetId { get; set; }
+
+    [Column("currency_id")]
+    public int CurrencyId { get; set; }
+
     [Column("classes_id")]
     public int? ClassesId { get; set; }
 
@@ -52,4 +35,9 @@ public class SystemModel
     public int? SkillTreeId { get; set; }
 
 
+    public virtual ICollection<SystemRaceGroup> SystemRaces { get; set; } = [];
+    public virtual ICollection<SystemItemGroup> SystemItems { get; set; } = [];
+    public virtual ICollection<SystemSpellGroup> SystemSpells { get; set; } = [];
+    public virtual ICollection<SystemSkillGroup> SystemSkills { get; set; } = [];
+    public virtual ICollection<SystemMapGroup> SystemMaps { get; set; } = [];
 }

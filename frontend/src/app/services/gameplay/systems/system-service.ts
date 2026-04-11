@@ -12,17 +12,20 @@ export interface SystemModel {
   providedIn: 'root',
 })
 export class SystemService {
-  private apiUrl = `${environment.apiUrl}/api/system`;
+  private apiUrl = `${environment.apiUrl}/system`;
 
   constructor(private http: HttpClient) {}
 
-  getSystems(): Observable<SystemModel[]> {
+  private getHeaders() {
     const token = localStorage.getItem('token');
-    
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
+    return new HttpHeaders({ 'Authorization': `Bearer ${token}` });
+  }
 
-    return this.http.get<SystemModel[]>(this.apiUrl, { headers });
+  getSystems(): Observable<any[]> {
+    return this.http.get<any[]>(this.apiUrl, { headers: this.getHeaders() });
+  }
+
+  createSystem(payload: any): Observable<any> {
+    return this.http.post<any>(this.apiUrl, payload, { headers: this.getHeaders() });
   }
 }

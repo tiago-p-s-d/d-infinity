@@ -84,7 +84,6 @@ public class MapsController(AppDbContext context) : ControllerBase
         return NoContent();
     }
 
-    // --- Map Groups Endpoints ---
 
     [HttpGet("groups")]
     public async Task<ActionResult<IEnumerable<MapGroup>>> GetGroups()

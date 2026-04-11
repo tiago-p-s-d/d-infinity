@@ -2,105 +2,107 @@
   <app-header></app-header>
 
   <main class="systems-container">
-    
+
     @if (isAdding) {
-      <section class="form-section">
-        <header class="section-header">
-          <h2>New System Configuration</h2>
-          <p>Link your content packs to create a unique rule engine.</p>
-        </header>
+    <section class="form-section">
+      <header class="section-header">
+        <h2>New System Configuration</h2>
+        <p>Link your content packs to create a unique rule engine.</p>
+      </header>
 
-        <form [formGroup]="systemForm" (ngSubmit)="onSubmit()" class="create-form">
-          <div class="full-field">
-            <label>System Name</label>
-            <input type="text" formControlName="name" placeholder="Ex: Epic Fantasy 5e">
+      <form [formGroup]="systemForm" (ngSubmit)="onSubmit()" class="create-form">
+        <div class="full-field">
+          <label>System Name</label>
+          <input type="text" formControlName="name" placeholder="Ex: Epic Fantasy 5e">
+        </div>
+
+        <div class="grid-form">
+          <div class="field">
+            <label>Character Sheet Model</label>
+            <select formControlName="characterSheetId">
+              <option [ngValue]="null" disabled>Select a sheet...</option>
+              @for (s of sheets(); track s.id) {
+              <option [ngValue]="s.id">{{ s.name }}</option>
+              }
+            </select>
           </div>
 
-          <div class="grid-form">
-            <div class="field">
-              <label>Character Sheet Model</label>
-              <select formControlName="characterSheetId">
-                <option [ngValue]="null" disabled>Select a sheet...</option>
-                @for (s of sheets(); track s.id) {
-                  <option [ngValue]="s.id">{{ s.name }}</option>
-                }
-              </select>
-            </div>
-
-            <div class="field">
-              <label>Economy / Currency</label>
-              <select formControlName="currencyId">
-                <option [ngValue]="null" disabled>Select economy...</option>
-                @for (c of currencies(); track c.id) {
-                  <option [ngValue]="c.id">{{ c.name }}</option>
-                }
-              </select>
-            </div>
-
-            <div class="field full-width">
-              <label>Items Packs <small>(Hold Ctrl/Cmd to select multiple)</small></label>
-              <select formControlName="itemsId" multiple class="multi-select">
-                @for (i of itemsList(); track i.id) {
-                  <option [value]="i.id">{{ i.name }}</option>
-                }
-              </select>
-            </div>
-
-            <div class="field full-width">
-              <label>Spells Packs</label>
-              <select formControlName="spellsId" multiple class="multi-select">
-                @for (sp of spellsList(); track sp.id) {
-                  <option [value]="sp.id">{{ sp.name }}</option>
-                }
-              </select>
-            </div>
-
-            <div class="field full-width">
-              <label>Skills Packs</label>
-              <select formControlName="skillsId" multiple class="multi-select">
-                @for (sk of skillsList(); track sk.id) {
-                  <option [value]="sk.id">{{ sk.name }}</option>
-                }
-              </select>
-            </div>
-
-            <div class="field full-width">
-              <label>Races Packs</label>
-              <select formControlName="racesId" multiple class="multi-select">
-                @for (r of racesList(); track r.id) {
-                  <option [value]="r.id">{{ r.name }}</option>
-                }
-              </select>
-            </div>
-
-            <div class="field full-width">
-              <label>Maps Packs</label>
-              <select formControlName="mapsId" multiple class="multi-select">
-                @for (m of mapsList(); track m.id) {
-                  <option [value]="m.id">{{ m.name }}</option>
-                }
-              </select>
-            </div>
-
-            <div class="field">
-              <label>Classes Pack (Optional)</label>
-              <select formControlName="classesId">
-                <option [ngValue]="null">None / Select pack...</option>
-                @for (cls of classesList(); track cls.id) {
-                  <option [ngValue]="cls.id">{{ cls.name }}</option>
-                }
-              </select>
-            </div>
+          <div class="field">
+            <label>Economy / Currency</label>
+            <select formControlName="currencyId">
+              <option [ngValue]="null" disabled>Select economy...</option>
+              @for (c of currencies(); track c.id) {
+              <option [ngValue]="c.id">{{ c.name }}</option>
+              }
+            </select>
           </div>
 
-          <div class="form-actions">
-            <button type="button" class="btn-secondary" (click)="isAdding = false">Cancel</button>
-            <button type="submit" [disabled]="systemForm.invalid" class="btn-save">
-              Finalize System
-            </button>
+          <div class="field full-width">
+            <label>Items Packs <small>(Hold Ctrl/Cmd to select multiple)</small></label>
+            <select formControlName="itemsId" multiple class="multi-select">
+              @for (i of itemsList(); track i.id) {
+              <option [value]="i.id">{{ i.name }}</option>
+              }
+            </select>
           </div>
-        </form>
-      </section>
+
+          <div class="field full-width">
+            <label>Spells Packs</label>
+            <select formControlName="spellsId" multiple class="multi-select">
+              @for (sp of spellsList(); track sp.id) {
+              <option [value]="sp.id">{{ sp.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="field full-width">
+            <label>Skills Packs</label>
+            <select formControlName="skillsId" multiple class="multi-select">
+              @for (sk of skillsList(); track sk.id) {
+              <option [value]="sk.id">{{ sk.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="field full-width">
+            <label>Races Packs</label>
+            <select formControlName="racesId" multiple class="multi-select">
+              @for (r of racesList(); track r.id) {
+              <option [value]="r.id">{{ r.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="field full-width">
+            <label>Maps Packs</label>
+            <select formControlName="mapsId" multiple class="multi-select">
+              @for (m of mapsList(); track m.id) {
+              <option [value]="m.id">{{ m.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Classes Pack (Optional)</label>
+            <select formControlName="classesId">
+              <option [ngValue]="null">None / Select pack...</option>
+              @for (cls of classesList(); track cls.id) {
+              <option [ngValue]="cls.id">{{ cls.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-primary" (click)="isAdding = !isAdding">
+            {{ isAdding ? 'Cancel' : '+ Create New System' }}
+          </button>
+          <button type="submit" [disabled]="systemForm.invalid" class="btn-save">
+            Finalize System
+          </button>
+        </div>
+      </form>
+    </section>
     }
 
     <section class="list-section">
@@ -110,45 +112,42 @@
           <p>Manage and edit your existing game rules.</p>
         </div>
         <button class="btn-primary" (click)="isAdding = !isAdding">
-            {{ isAdding ? 'Cancel' : '+ Create New System' }}
+          {{ isAdding ? 'Cancel' : '+ Create New System' }}
         </button>
       </div>
 
-      @if (systems.length === 0) {
-        <div class="empty-state">
-          <p>You haven't created any systems yet.</p>
-        </div>
+      @if (systems().length === 0) {
+      <div class="empty-state">
+        <p>You haven't created any systems yet.</p>
+      </div>
       } @else {
-        <div class="systems-grid">
-          @for (s of systems; track s.id) {
-            <div class="system-card">
-              <div class="card-body">
-                <h3>{{ s.name }}</h3>
-                
-                <div class="packs-summary">
-                  <span class="pack-badge">
-                    <strong>Races:</strong> {{ s.racesId?.length || 0 }}
-                  </span>
-                  <span class="pack-badge">
-                    <strong>Spells:</strong> {{ s.spellsId?.length || 0 }}
-                  </span>
-                  <span class="pack-badge">
-                    <strong>Items:</strong> {{ s.itemsId?.length || 0 }}
-                  </span>
-                  <span class="pack-badge">
-                    <strong>Skills:</strong> {{ s.skillsId?.length || 0 }}
-                  </span>
-                </div>
-              </div>
-              
-              <div class="card-footer">
-                <button class="btn-edit">
-                  <i class="icon-settings"></i> Configure
-                </button>
-              </div>
+      <div class="systems-grid">
+        @for (s of systems(); track s.id) {
+        <div class="system-card">
+          <div class="card-body">
+            <h3>{{ s.name }}</h3>
+
+            <div class="packs-summary">
+              <span class="pack-badge">
+                <strong>Races:</strong> {{ s.systemRaces?.length || 0 }}
+              </span>
+              <span class="pack-badge">
+                <strong>Spells:</strong> {{ s.systemSpells?.length || 0 }}
+              </span>
+              <span class="pack-badge">
+                <strong>Items:</strong> {{ s.systemItems?.length || 0 }}
+              </span>
+              <span class="pack-badge">
+                <strong>Skills:</strong> {{ s.systemSkills?.length || 0 }}
+              </span>
             </div>
-          }
+          </div>
+
+          <div class="card-footer">
+          </div>
         </div>
+        }
+      </div>
       }
     </section>
   </main>

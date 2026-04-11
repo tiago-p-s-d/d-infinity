@@ -5,11 +5,14 @@ import { SheetService } from '../../../services/gameplay/character-sheet/sheet-s
 import { EditButton } from '../../layout/edit-button/edit-button';
 import { DeleteButton } from '../../layout/delete-button/delete-button';
 import { FieldBuilder } from '../../global/field-builder/field-builder';
+import { Header } from '../../layout/header/header';
+
 
 @Component({
   selector: 'app-character-sheet',
   standalone: true,
   imports: [
+    Header,
     CommonModule, 
     ReactiveFormsModule,
     DeleteButton, 
