@@ -3,7 +3,7 @@ import { Login } from './components/auth/login/login';
 import { NewUser } from './components/auth/new-user/new-user';
 import { Home } from './components/home/home';
 import { authGuard } from './guards/auth-guard';
-import { StartYourOwn } from './components/start-your-own/start-your-own';
+import { CreateCampaign } from './components/gameplay/create-campaign/create-campaign';
 import { Systems } from './components/gameplay/systems/systems';
 import { Items } from './components/gameplay/items/items';
 import { Maps } from './components/gameplay/maps/maps';
@@ -13,13 +13,15 @@ import { Races } from './components/gameplay/races/races';
 import { CharacterSheet } from './components/gameplay/character-sheet/character-sheet';
 import { Currency } from './components/gameplay/currency/currency';
 import { Classes } from './components/gameplay/classes/classes';
+import { JoinCampaign } from './components/gameplay/join-campaign/join-campaign';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component:  Login},
   { path: 'register', component: NewUser },
   { path: 'home', component: Home, canActivate: [authGuard] },
-  { path: 'start-own', component: StartYourOwn, canActivate: [authGuard]},
+  { path: 'join', component: JoinCampaign, canActivate: [authGuard]},
+  { path: 'my-campaigns', component: CreateCampaign, canActivate: [authGuard]},
   { path: 'dm/systems', component: Systems, canActivate: [authGuard]},
   { path: 'dm/items', component: Items, canActivate: [authGuard]},
   { path: 'dm/maps', component: Maps, canActivate: [authGuard]},
@@ -29,7 +31,7 @@ export const routes: Routes = [
   { path: 'dm/character-sheets', component: CharacterSheet, canActivate: [authGuard]},
   { path: 'dm/currency', component: Currency, canActivate: [authGuard]},
   { path: 'dm/classes', component: Classes, canActivate: [authGuard]},
-
+  
 
   
 

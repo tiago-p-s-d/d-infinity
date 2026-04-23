@@ -1,0 +1,12 @@
+<div class="modal-overlay">
+  <div class="modal-content text-center">
+    <div class="d20-icon-large">20</div>
+    <h3>You've been invited!</h3>
+    <p>You were invited to join <strong>{{ campaignData?.name }}</strong>.</p>
+    
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="decline()">Decline</button>
+      <button class="btn-primary" (click)="acceptInvite()">Accept & Create Character</button>
+    </div>
+  </div>
+</div>

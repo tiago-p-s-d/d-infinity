@@ -1,0 +1,78 @@
+<div class="systems-page">
+  <app-header></app-header>
+  <div class="systems-container">
+
+    <div class="list-header-flex">
+      <div class="title-text">
+        <h2>Campaign Forge</h2>
+        <p>Set the stage for your next great adventure.</p>
+      </div>
+    </div>
+
+    <section class="form-section">
+      <div class="section-header">
+        <h2>{{ isEditing ? 'Edit Campaign' : 'Initialize Campaign' }}</h2>
+      </div>
+
+      <form [formGroup]="campaignForm" (ngSubmit)="onCreate()" class="create-form">
+        <div class="grid-form">
+          <div class="field">
+            <label>Campaign Name</label>
+            <input type="text" formControlName="campaignName" placeholder="Ex: The Lost Mine of Phandelver">
+          </div>
+
+          <div class="field">
+            <label>System Engine</label>
+            <select formControlName="systemId">
+              <option [ngValue]="null" disabled>Select the ruleset...</option>
+              @for (s of systems(); track s.id) {
+              <option [ngValue]="s.id">{{ s.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="full-field">
+          <label>About the Story / Mechanics</label>
+          <input type="text" formControlName="about" placeholder="Briefly describe the world and expectations...">
+        </div>
+
+        <div class="form-actions">
+          @if (isEditing) {
+          <button type="button" class="btn-secondary" (click)="resetForm()">Cancel</button>
+          }
+          <button type="submit" class="btn-save" [disabled]="campaignForm.invalid">
+            {{ isEditing ? 'Update Campaign' : 'Initialize Campaign' }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Grid de campanhas criadas -->
+    <div class="systems-grid">
+      @for (campaign of campaigns(); track campaign.id) {
+      <div class="system-card">
+        <div class="card-header-flex">
+          <div class="title-badge-flex">
+            <h3>{{ campaign.campaignName }}</h3>
+            <span class="badge">{{ campaign.system?.name || 'No System' }}</span>
+          </div>
+          <div class="card-actions">
+            <app-edit-button (onClick)="onEdit(campaign)"></app-edit-button>
+            <app-delete-button (onClick)="onDelete(campaign)"></app-delete-button>
+          </div>
+        </div>
+        <div class="invite-code">
+          <span>Invite</span>
+          <code>{{ campaign.inviteCode }}</code>
+          <button type="button" (click)="copyInvite(campaign.inviteCode)">Copy</button>
+        </div>
+        <p class="campaign-description">{{ campaign.about || 'A mysterious adventure yet to be told.' }}</p>
+      </div>
+      } @empty {
+      <p class="empty-msg">No campaigns created yet.</p>
+      }
+    </div>
+
+  </div>
+</div>
