@@ -16,7 +16,17 @@ public class Campaign
     [Column("campaign_name")]
     public required string CampaignName { get; set; }
 
-    public virtual ICollection<CampaignUser> CampaignMembers { get; set; } = [];
+    [Column("about")]
+    public string? About { get; set; }
 
-    public virtual ICollection<MapModel> Maps { get; set; } = [];
+    [Column("system_id")]
+    public int SystemId { get; set; }
+    
+    [ForeignKey("SystemId")]
+    public virtual SystemModel System { get; set; } = null!;
+
+    [Column("invite_code")]
+    public string InviteCode { get; set; } = string.Empty;
+
+    public virtual ICollection<CampaignUser> CampaignMembers { get; set; } = [];
 }

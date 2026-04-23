@@ -17,7 +17,7 @@ public class CharacterSheet
 
     [Column("model_id")]
     public int ModelId { get; set; }
-    
+
     [ForeignKey("ModelId")]
     public virtual CharacterSheetModel? Model { get; set; }
 
@@ -29,6 +29,12 @@ public class CharacterSheet
 
     [ForeignKey("PlayerId")]
     public User? Player { get; set; }
+
+    [Column("campaign_id")]
+    public int CampaignId { get; set; }
+
+    [ForeignKey("CampaignId")]
+    public virtual Campaign? Campaign { get; set; }
 
     [Column("race_id")]
     public int? RaceId { get; set; }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace Api.Controllers.Gameplay;
 
@@ -34,8 +35,29 @@ public class CharacterSheetModelController(AppDbContext context) : ControllerBas
             .FirstOrDefaultAsync(m => m.Id == id && m.CreatedBy == userId);
 
         if (model == null) return NotFound();
-
         return model;
+    }
+
+    // Busca o modelo de ficha vinculado ao sistema — usado pelo join-campaign
+    [HttpGet("by-system/{systemId}")]
+    public async Task<IActionResult> GetBySystem(int systemId)
+    {
+        var system = await _context.Systems
+            .FirstOrDefaultAsync(s => s.Id == systemId);
+
+        if (system == null) return NotFound("System not found.");
+
+        var model = await _context.CharacterSheetModels
+            .FirstOrDefaultAsync(m => m.Id == system.CharacterSheetId);
+
+        if (model == null) return NotFound("No character sheet model linked to this system.");
+
+        return Ok(new
+        {
+            model.Id,
+            model.Name,
+            Definitions = JsonSerializer.Deserialize<object>(model.Definitions)
+        });
     }
 
     [HttpPost]
@@ -45,11 +67,10 @@ public class CharacterSheetModelController(AppDbContext context) : ControllerBas
         if (userId == null) return Unauthorized();
 
         model.CreatedBy = userId.Value;
-        model.Creator = null; 
+        model.Creator = null;
 
         _context.CharacterSheetModels.Add(model);
         await _context.SaveChangesAsync();
-
         return CreatedAtAction(nameof(GetById), new { id = model.Id }, model);
     }
 
@@ -68,10 +89,8 @@ public class CharacterSheetModelController(AppDbContext context) : ControllerBas
 
         model.CreatedBy = userId.Value;
         model.Creator = null;
-        
         _context.Entry(model).State = EntityState.Modified;
         await _context.SaveChangesAsync();
-
         return Ok(model);
     }
 
@@ -88,7 +107,6 @@ public class CharacterSheetModelController(AppDbContext context) : ControllerBas
 
         _context.CharacterSheetModels.Remove(model);
         await _context.SaveChangesAsync();
-
         return NoContent();
     }
 

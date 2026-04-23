@@ -69,7 +69,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .WithMany(s => s.SystemRaces)
             .HasForeignKey(e => e.SystemId)
             .OnDelete(DeleteBehavior.Cascade);
-            
-        
+
     }
 }
