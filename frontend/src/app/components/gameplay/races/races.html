@@ -1,0 +1,111 @@
+<div class="systems-page">
+  <app-header></app-header>
+  <div class="systems-container">
+
+    <div class="list-header-flex">
+      <div class="title-text">
+        <h2>Race Forge</h2>
+        <p>Create ancestral lineages and unique biological traits.</p>
+      </div>
+    </div>
+
+    <section class="form-section" id="raceFormSection">
+      <div class="section-header">
+        <h2>{{ isEditing ? 'Edit Race' : 'Create New Race' }}</h2>
+      </div>
+
+      <form [formGroup]="raceForm" (ngSubmit)="onSubmit()" class="create-form">
+        
+        <div class="grid-form">
+          <div class="field">
+            <label>Race Name</label>
+            <input type="text" formControlName="name" placeholder="Ex: High Elf, Mountain Dwarf">
+          </div>
+
+          <div class="field">
+            <label>Race Group</label>
+            <div class="group-input-flex">
+              <select formControlName="raceGroupId">
+                <option [ngValue]="null" disabled>Select a pack...</option>
+                @for (group of raceGroups(); track group.id) {
+                  <option [ngValue]="group.id">{{ group.name }}</option>
+                }
+              </select>
+              <button type="button" class="btn-primary-sm" (click)="showGroupModal = true">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.8rem; color: #888; text-transform: uppercase; font-size: 0.75rem; font-weight: 600;">
+                Race Modifiers & Stats
+            </label>
+            <app-field-builder [initialFields]="currentFields" (onSchemaChange)="updateSchema($event)">
+            </app-field-builder>
+        </div>
+
+        <div class="full-field">
+          <label>About </label>
+          <input type="text" formControlName="about" placeholder="Describe racial traits and history...">
+        </div>
+
+        <div class="form-actions">
+          @if (isEditing) {
+            <button type="button" class="btn-secondary" (click)="resetForm()">Cancel</button>
+          }
+          <button type="submit" class="btn-save" [disabled]="raceForm.invalid">
+            {{ isEditing ? 'Update Race' : 'Create Race' }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    @if (showGroupModal) {
+      <div class="modal-overlay">
+        <div class="modal-content">
+          <h3>New Race Group</h3>
+          <p style="color: #888; font-size: 0.8rem; margin-bottom: 1rem;">
+            Create a category for your races (e.g., Humanoids, Monstrosities).
+          </p>
+          
+          <input type="text" #newGroupName placeholder="Group Name (Ex: Ancestral Pack)" 
+                 (keyup.enter)="saveNewGroup(newGroupName.value)">
+          
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" (click)="showGroupModal = false">Cancel</button>
+            <button type="button" class="btn-save" (click)="saveNewGroup(newGroupName.value)">Create</button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="systems-grid">
+      @for (race of races(); track race.id) {
+        <div class="system-card">
+          <div class="card-header-flex">
+            <div class="title-badge-flex">
+              <h3>{{ race.name }}</h3>
+              <span class="badge">{{ race.group?.name || 'No Group' }}</span>
+            </div>
+            <div class="card-actions">
+              <app-edit-button (onClick)="onEdit(race)"></app-edit-button>
+              <app-delete-button (onClick)="onDelete(race)"></app-delete-button>
+            </div>
+          </div>
+
+          <p class="race-description">{{ race.about || 'A mysterious race from the edges of the world.' }}</p>
+
+          <div class="stats-mini">
+            @for (field of parseModifiers(race.modifiers); track field.label) {
+              <span><strong>{{ field.label }}:</strong> {{ field.value }}</span>
+            } @empty {
+              <span style="color: #666;">No modifiers defined.</span>
+            }
+          </div>
+        </div>
+      } @empty {
+        <p class="empty-msg">No races created yet.</p>
+      }
+    </div>
+  </div>
+</div>

@@ -1,11 +1,74 @@
 using Api.Models;
+using Api.Models.Gameplay;
+using Api.Models.Gameplay.Groups;
 using Microsoft.EntityFrameworkCore;
+using Api.Models.User;
 
 namespace Api.Data;
 
-public class AppDbContext: DbContext{
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options){
-    }
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+{
+    public DbSet<User> Users { get; set; } = null!;
+    public DbSet<UserVerification> UserVerifications { get; set; } = null!;
 
-    public DbSet<Usuario> Usuarios{ get; set;}
+    public DbSet<Campaign> Campaigns { get; set; } = null!;
+    public DbSet<CampaignUser> CampaignMembers { get; set; } = null!;
+
+    public DbSet<SystemModel> Systems { get; set; } = null!;        
+    public DbSet<SystemRaceGroup> SystemRaceGroups { get; set; } = null!;
+    public DbSet<SystemItemGroup> SystemItemGroups { get; set; } = null!;
+    public DbSet<SystemSpellGroup> SystemSpellGroups { get; set; } = null!;
+    public DbSet<SystemSkillGroup> SystemSkillGroups { get; set; } = null!;
+    public DbSet<SystemMapGroup> SystemMapGroups { get; set; } = null!;
+    public DbSet<CharacterSheet> CharacterSheets { get; set; } = null!;
+    public DbSet<CharacterSheetModel> CharacterSheetModels { get; set; } = null!;
+    public DbSet<Race> Races { get; set; } = null!;
+    public DbSet<MapModel> Maps { get; set; } = null!;
+    public DbSet<MapGroup> MapGroups { get; set; } = null!;
+    public DbSet<SpellGroup> SpellGroups { get; set; } = null!;
+    public DbSet<RaceGroup> RaceGroups { get; set; } = null!;
+    public DbSet<ItemGroup> ItemGroups { get; set; } = null!;
+    public DbSet<SkillGroup> SkillGroups { get; set; } = null!;
+    public DbSet<Item> Items { get; set; } = null!;
+    public DbSet<Inventory> Inventories { get; set; } = null!;
+    public DbSet<InventoryItem> InventoryItems { get; set; } = null!;
+    public DbSet<ClassModel> Classes { get; set; } = null!;
+    public DbSet<ClassGroup> ClassGroups { get; set; } = null!;
+    public DbSet<Skill> Skills { get; set; } = null!;
+    public DbSet<KnownSkill> KnownSkills { get; set; } = null!;
+    public DbSet<Spell> Spells { get; set; } = null!;
+    public DbSet<KnownSpell> KnownSpells { get; set; } = null!;
+
+    public DbSet<Currency> Currencies { get; set; } = null!;
+    public DbSet<CurrencyValue> CurrencyValues { get; set; } = null!;
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+        
+        modelBuilder.Entity<SystemRaceGroup>()
+            .HasIndex(e => new { e.SystemId, e.RaceGroupId }).IsUnique();
+
+        modelBuilder.Entity<SystemItemGroup>()
+            .HasIndex(e => new { e.SystemId, e.ItemGroupId }).IsUnique();
+
+        modelBuilder.Entity<SystemSpellGroup>()
+            .HasIndex(e => new { e.SystemId, e.SpellGroupId }).IsUnique();
+
+        modelBuilder.Entity<SystemSkillGroup>()
+            .HasIndex(e => new { e.SystemId, e.SkillGroupId }).IsUnique();
+
+        modelBuilder.Entity<SystemMapGroup>()
+            .HasIndex(e => new { e.SystemId, e.MapGroupId }).IsUnique();
+            
+
+        modelBuilder.Entity<SystemRaceGroup>()
+            .HasOne(e => e.System)
+            .WithMany(s => s.SystemRaces)
+            .HasForeignKey(e => e.SystemId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+    }
 }

@@ -1,0 +1,43 @@
+<div class="auth-container">
+    <div class="auth-card verification-card">
+        <div class="icon-header">
+            <span class="material-icons">email</span>
+        </div>
+
+        <h2>Verify Your Email</h2>
+        <p>We sent a 6-digit code to:</p>
+        <strong class="email-display">{{ email }}</strong>
+        <p class="expiry-note">Code expires in 10 minutes.</p>
+
+        <div class="code-container" (paste)="onPaste($event)">
+            @for (digit of code; track $index) {
+            <input #codeInput type="text" inputmode="numeric" maxlength="1" [(ngModel)]="code[$index]"
+                (keyup)="onKeyUp($event, $index)" class="digit-input" [class.error]="errorMessage"
+                [disabled]="isLoading || isSuccess" />
+            }
+        </div>
+
+        @if (errorMessage) {
+        <div class="error-message">
+            <span class="material-icons">error_outline</span> {{ errorMessage }}
+        </div>
+        }
+
+        @if (isSuccess) {
+        <div class="success-message">
+            <span class="material-icons">check_circle_outline</span> Email verified! Redirecting...
+        </div>
+        }
+
+        <div class="actions">
+            <button (click)="verify()" [disabled]="code.join('').length < 6 || isLoading || isSuccess"
+                class="btn-primary">
+                {{ isLoading ? 'Verifying...' : 'Verify Code' }}
+            </button>
+
+            <p class="resend-link">
+                Didn't receive it? <a routerLink="/new-user">Try again</a>
+            </p>
+        </div>
+    </div>
+</div>

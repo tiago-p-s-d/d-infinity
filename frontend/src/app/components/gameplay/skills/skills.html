@@ -1,0 +1,104 @@
+<div class="systems-page">
+  <app-header></app-header>
+  <div class="systems-container">
+    
+    <div class="list-header-flex">
+      <div class="title-text">
+        <h2>Skill Forge</h2>
+        <p>Create features and tactical maneuvers for your system.</p>
+      </div>
+    </div>
+
+    <section class="form-section" id="skillFormSection">
+      <div class="section-header">
+        <h2>{{ isEditing ? 'Edit Skill' : 'Create New Skill' }}</h2>
+      </div>
+
+      <form [formGroup]="skillForm" (ngSubmit)="onSubmit()" class="create-form">
+        <div class="grid-form">
+          <div class="field">
+            <label>Skill Name</label>
+            <input type="text" formControlName="name" placeholder="Ex: Adrenaline Rush">
+          </div>
+
+          <div class="field">
+            <label>Skill Group (Pack)</label>
+            <div class="group-input-flex">
+              <select formControlName="skillGroupId">
+                <option [ngValue]="null" disabled>Select a pack...</option>
+                @for (group of skillGroups(); track group.id) {
+                  <option [ngValue]="group.id">{{ group.name }}</option>
+                }
+              </select>
+              <button type="button" class="btn-primary-sm" (click)="showGroupModal = true">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 2rem;">
+          <label style="display: block; margin-bottom: 0.8rem; color: #888; text-transform: uppercase; font-size: 0.75rem; font-weight: 600;">
+            Mechanical Effects
+          </label>
+          <app-field-builder [initialFields]="currentFields" (onSchemaChange)="updateSchema($event)">
+          </app-field-builder>
+        </div>
+
+        <div class="full-field">
+          <label>About / Mechanics</label>
+          <input type="text" formControlName="about" placeholder="Describe the skill mechanics...">
+        </div>
+
+        <div class="form-actions">
+          @if (isEditing) {
+            <button type="button" class="btn-secondary" (click)="resetForm()">Cancel</button>
+          }
+          <button type="submit" class="btn-save" [disabled]="skillForm.invalid">
+            {{ isEditing ? 'Save Changes' : 'Add Skill' }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    @if (showGroupModal) {
+      <div class="modal-overlay">
+        <div class="modal-content">
+          <h3>New Skill Pack</h3>
+          <input type="text" #newGroupName placeholder="Group Name (Ex: Combat Maneuvers)">
+          <div class="modal-actions">
+            <button class="btn-secondary" (click)="showGroupModal = false">Cancel</button>
+            <button class="btn-save" (click)="saveNewGroup(newGroupName.value)">Create</button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="systems-grid">
+      @for (skill of skills(); track skill.id) {
+        <div class="system-card">
+          <div class="card-header-flex">
+            <div class="title-badge-flex">
+              <h3>{{ skill.name }}</h3>
+              <span class="badge">{{ skill.group?.name }}</span>
+            </div>
+            <div class="card-actions">
+                    <app-edit-button (onClick)="onEdit(skill)"></app-edit-button>
+                    <app-delete-button (onClick)="onDelete(skill)"></app-delete-button>
+            </div>
+          </div>
+          
+          <p class="skill-description">{{ skill.about || 'No mechanics described.' }}</p>
+
+          <div class="stats-mini">
+            @for (eff of parseEffect(skill.effect); track eff.label) {
+              <span><strong>{{ eff.label }}:</strong> {{ eff.value }}</span>
+            } @empty {
+              <span style="color: #666;">No tactical effects.</span>
+            }
+          </div>
+        </div>
+      } @empty {
+        <p class="empty-msg">No skills created yet.</p>
+      }
+    </div>
+  </div>
+</div>

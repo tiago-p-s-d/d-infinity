@@ -1,0 +1,119 @@
+<div class="systems-page">
+  <app-header></app-header>
+  <div class="systems-container">
+    
+    <div class="list-header-flex">
+      <div class="title-text">
+        <h2>Cartography Studio</h2>
+        <p>Upload and configure grids for your campaign maps.</p>
+      </div>
+    </div>
+
+    <section class="form-section">
+      <div class="section-header">
+        <h2>{{ isEditing ? 'Edit Map' : 'Create New Map' }}</h2>
+      </div>
+
+      <form [formGroup]="mapForm" (ngSubmit)="onSubmit()" class="create-form">
+        <div class="grid-layout">
+          
+          <div class="map-preview-container">
+            <div class="preview-toolbar">
+              <button type="button" (click)="adjustZoom(0.1)">Zoom In (+)</button>
+              <button type="button" (click)="adjustZoom(-0.1)">Zoom Out (-)</button>
+              <span>Zoom: {{ zoomLevel() | number:'1.1-1' }}x</span>
+            </div>
+
+            <div class="map-viewport">
+              <div class="map-canvas-wrapper" 
+                   [style.transform]="'scale(' + zoomLevel() + ')'">
+                @if (selectedImage()) {
+                  <img [src]="selectedImage()" class="map-img">
+                  <div class="grid-overlay" 
+                       [style.background-size]="gridSize() + 'px ' + gridSize() + 'px'">
+                  </div>
+                } @else {
+                  <div class="upload-placeholder">
+                    <p>No image selected</p>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="map-inputs">
+            <div class="full-field">
+              <label>Map Name</label>
+              <input type="text" formControlName="name" placeholder="Ex: Dragon's Lair">
+            </div>
+
+            <div class="full-field">
+              <label>Map Group (Region/Pack)</label>
+              <div class="group-input-flex">
+                <select formControlName="mapGroupId">
+                  <option [ngValue]="null" disabled>Select a group...</option>
+                  @for (group of mapGroups(); track group.id) {
+                    <option [ngValue]="group.id">{{ group.name }}</option>
+                  }
+                </select>
+                <button type="button" class="btn-primary-sm" (click)="showGroupModal = true">+</button>
+              </div>
+            </div>
+
+            <div class="full-field">
+              <label>Select Map Image</label>
+              <input type="file" (change)="onFileSelected($event)" accept="image/*">
+            </div>
+
+            <div class="form-actions">
+              @if (isEditing) {
+                <button type="button" class="btn-secondary" (click)="resetForm()">Cancel</button>
+              }
+              <button type="submit" class="btn-save" [disabled]="mapForm.invalid || !selectedImage()">
+                {{ isEditing ? 'Save Changes' : 'Save Map' }}
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </form>
+    </section>
+
+    @if (showGroupModal) {
+      <div class="modal-overlay">
+        <div class="modal-content">
+          <h3>New Map Group</h3>
+          <input type="text" #newGroupName placeholder="Group Name (Ex: Sword Coast)">
+          <div class="modal-actions">
+            <button class="btn-secondary" (click)="showGroupModal = false">Cancel</button>
+            <button class="btn-save" (click)="saveNewGroup(newGroupName.value)">Create</button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="systems-grid">
+      @for (map of maps(); track map.id) {
+        <div class="system-card">
+          <div class="card-header-flex">
+            <div class="title-badge-flex">
+              <h3>{{ map.name }}</h3>
+              <span class="badge">{{ map.mapGroup?.name || 'No Group' }}</span>
+            </div>
+            <div class="card-actions">
+              <app-edit-button (onClick)="onEdit(map)"></app-edit-button>
+              <app-delete-button (onClick)="onDelete(map)"></app-delete-button>
+            </div>
+          </div>
+          
+          <div class="map-card-preview">
+             <img [src]="map.mapImage" alt="Map Preview">
+          </div>
+        </div>
+      } @empty {
+        <p class="empty-msg">No maps created for this campaign yet.</p>
+      }
+    </div>
+
+  </div>
+</div>

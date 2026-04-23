@@ -1,0 +1,101 @@
+<div class="systems-page">
+  <app-header></app-header>
+  <div class="systems-container">
+
+    <div class="list-header-flex">
+      <div class="title-text">
+        <h2>Game Items</h2>
+        <p>Manage equipment, weapons, and artifacts for your RPG.</p>
+      </div>
+    </div>
+
+    <section class="form-section" id="itemFormSection">
+      <div class="section-header">
+        <h2>{{ isEditing ? 'Edit Item' : 'Create New Item' }}</h2>
+      </div>
+
+      <form [formGroup]="itemForm" (ngSubmit)="onSubmit()" class="create-form">
+        
+        <div class="grid-form" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+          <div class="field">
+            <label>Item Name</label>
+            <input type="text" formControlName="name" placeholder="Ex: Steel Longsword">
+          </div>
+
+          <div class="field">
+            <label>Item Group</label>
+            <div style="display: flex; gap: 10px;">
+              <select formControlName="itemGroupId" style="flex: 1;">
+                <option [ngValue]="null" disabled>Select a group...</option>
+                @for (group of itemGroups(); track group.id) {
+                  <option [ngValue]="group.id">{{ group.name }}</option>
+                }
+              </select>
+              <button type="button" class="btn-primary" style="padding: 0 15px;" (click)="showGroupModal = true">+</button>
+            </div>
+          </div>
+        </div>
+
+        <app-field-builder [initialFields]="currentFields" (onSchemaChange)="updateSchema($event)">
+        </app-field-builder>
+
+        <div class="full-field" style="margin-top: 1.5rem;">
+          <label>Description</label>
+          <input type="text" formControlName="description" placeholder="Brief history or item effects...">
+        </div>
+
+        <div class="form-actions">
+          @if (isEditing) {
+          <button type="button" class="btn-secondary" (click)="resetForm()">
+            Cancel
+          </button>
+          }
+          <button type="submit" class="btn-save" [disabled]="itemForm.invalid">
+            {{ isEditing ? 'Save Changes' : 'Add Item' }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    @if (showGroupModal) {
+      <div class="modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+        <div class="modal-content" style="background: #1e1e1e; padding: 25px; border-radius: 8px; width: 350px; border: 1px solid #333;">
+          <h3 style="margin-bottom: 15px; color: white;">New Item Group</h3>
+          <input type="text" #newGroupName placeholder="Group Name (Ex: Weapons)" style="width: 100%; padding: 10px; background: #121212; border: 1px solid #444; color: white; margin-bottom: 20px;">
+          <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <button class="btn-secondary" (click)="showGroupModal = false">Cancel</button>
+            <button class="btn-save" (click)="saveNewGroup(newGroupName.value)">Create Group</button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="systems-grid">
+      @for (item of items(); track item.id) {
+      <div class="system-card">
+        <div class="card-header-flex">
+          <h3>{{ item.name }}</h3>
+          <span class="badge" style="background: #333; font-size: 0.7rem; padding: 2px 8px; border-radius: 10px;">
+            {{ item.group?.name }}
+          </span>
+        </div>
+
+        <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 1rem;">
+          {{ item.description || 'No description.' }}
+        </p>
+
+        <div class="stats-mini">
+          @for (field of parseDefinitions(item.definitions); track field.label) {
+            <span><strong>{{ field.label }}:</strong> {{ field.value }}</span>
+          }
+        </div>
+
+        <div class="card-actions">
+          <app-edit-button (onClick)="onEdit(item)"></app-edit-button>
+          <app-delete-button (onClick)="onDelete(item)"></app-delete-button>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+</div>

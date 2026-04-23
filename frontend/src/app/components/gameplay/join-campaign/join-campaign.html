@@ -1,0 +1,74 @@
+<div class="systems-page">
+  <app-header></app-header>
+  <div class="systems-container">
+
+    <!-- Entrada de código -->
+    <div class="list-header-flex">
+      <div class="title-text">
+        <h2>Join Campaign</h2>
+        <p>Enter your invite code to join an adventure.</p>
+      </div>
+    </div>
+
+    <section class="form-section invite-section">
+      <form [formGroup]="inviteForm" (ngSubmit)="onJoin()" class="create-form">
+        <div class="invite-code-input">
+          <label>Invite Code</label>
+          <input type="text" formControlName="inviteCode"
+                 placeholder="Ex: a1b2c3d4"
+                 maxlength="8" autocomplete="off" spellcheck="false">
+          @if (error()) {
+            <span class="field-error">{{ error() }}</span>
+          }
+          @if (joinSuccess()) {
+            <span class="field-success">You have joined the campaign!</span>
+          }
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-save" [disabled]="inviteForm.invalid || loading()">
+            {{ loading() ? 'Validating...' : 'Enter Campaign' }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Campanhas que já participo -->
+    <div class="list-header-flex" style="margin-top: 2rem;">
+      <div class="title-text">
+        <h2>My Adventures</h2>
+        <p>Campaigns you are currently part of as a player.</p>
+      </div>
+    </div>
+
+    <div class="systems-grid">
+      @for (campaign of myCampaigns(); track campaign.campaignId) {
+        <div class="system-card">
+          <div class="card-header-flex">
+            <div class="title-badge-flex">
+              <h3>{{ campaign.campaignName }}</h3>
+              <span class="badge">{{ campaign.systemName ?? 'No System' }}</span>
+            </div>
+          </div>
+          <p class="race-description">{{ campaign.about || 'A mysterious adventure awaits.' }}</p>
+          <div class="card-actions-bottom">
+            <button class="btn-secondary" (click)="openSheetModal(campaign)">
+              Edit Character Sheet
+            </button>
+          </div>
+        </div>
+      } @empty {
+        <p class="empty-msg">You have not joined any campaigns yet.</p>
+      }
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal -->
+<app-sheet-edit-modal
+  [open]="modalOpen"
+  [sheet]="modalSheet()"
+  [definitions]="modalDefinitions()"
+  (saved)="onSheetSaved()"
+  (closed)="closeModal()"
+/>
