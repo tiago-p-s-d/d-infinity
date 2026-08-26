@@ -27,7 +27,7 @@ export class JoinCampaign implements OnInit {
   constructor(
     private fb: FormBuilder,
     private campaignService: CampaignService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.inviteForm = this.fb.group({
@@ -68,27 +68,52 @@ export class JoinCampaign implements OnInit {
   }
 
   openSheetModal(campaign: any) {
-    if (!campaign.campaignId || !campaign.systemId) return;
+  if (!campaign.campaignId || !campaign.systemId) return;
 
-    forkJoin({
-      sheet: this.campaignService.getSheetByCampaign(campaign.campaignId),
-      model: this.campaignService.getSheetModelBySystem(campaign.systemId)
-    }).subscribe({
-      next: (res) => {
+  this.loading.set(true);
+
+  forkJoin({
+    sheet: this.campaignService.getSheetByCampaign(campaign.campaignId),
+    model: this.campaignService.getSheetModelBySystem(campaign.systemId)
+  }).subscribe({
+    next: (res) => {
+      // Definimos as definições (structure) primeiro
+      const defs = res.model.definitions || res.model.Definitions || [];
+      this.modalDefinitions.set(defs);
+
+      if (res.sheet) {
+        // Se a ficha existe no banco
         this.modalSheet.set(res.sheet);
-        this.modalDefinitions.set(res.model?.structure || res.model?.fields || []);
-        this.modalOpen = true;
-      },
-      error: (err) => console.error(err)
-    });
-  }
-
-  onSheetSaved() {
-    this.modalOpen = false;
-    this.loadMyCampaigns();
-  }
+      } else {
+        // Se a ficha NÃO existe (Lazy Creation)
+        // Importante: Guardar o modelId e campaignId para o POST depois
+        this.modalSheet.set({
+          id: null,
+          characterName: '',
+          campaignId: campaign.campaignId,
+          modelId: res.model.id || res.model.Id,
+          Values: '{}' 
+        });
+      }
+      
+      this.modalOpen = true; // Só aqui o modal deve aparecer
+      this.loading.set(false);
+    },
+    error: (err) => {
+      console.error('Erro ao abrir modal:', err);
+      this.loading.set(false);
+      alert('Could not load character data.');
+    }
+  });
+}
 
   closeModal() {
     this.modalOpen = false;
+    this.modalSheet.set(null);
+  }
+
+  onSheetSaved() {
+    this.closeModal();
+    this.loadMyCampaigns();
   }
 }

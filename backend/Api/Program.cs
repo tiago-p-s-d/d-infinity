@@ -1,11 +1,11 @@
 using Api.Data;
+using Api.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.AspNetCore.Authentication.JwtBearer; 
-using Microsoft.IdentityModel.Tokens; 
-using System.Text; 
-using System.Text.Json.Serialization; 
-using Api.Infrastructure;
+using System.Text;
+using System.Text.Json.Serialization;
 
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.Clear();
@@ -51,7 +51,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization(); 
+builder.Services.AddAuthorization();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -60,9 +60,7 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     });
 
-
 builder.Services.AddOpenApi();
-
 
 builder.Services.AddCors(options => {
     options.AddDefaultPolicy(policy => {
@@ -73,6 +71,8 @@ builder.Services.AddCors(options => {
 });
 
 builder.Services.AddScoped<EmailService>();
+builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<VerificationService>();
 
 var app = builder.Build();
 

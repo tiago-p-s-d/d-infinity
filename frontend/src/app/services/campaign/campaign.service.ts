@@ -48,4 +48,8 @@ export class CampaignService {
   updateSheet(id: number, payload: any): Observable<any> {
     return this.http.put(`${this.sheetUrl}/${id}`, payload);
   }
+  // No campaign.service.ts
+  createSheet(payload: any): Observable<any> {
+    return this.http.post(`${this.sheetUrl}`, payload);
+  }
 }

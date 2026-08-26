@@ -14,11 +14,13 @@ import { CharacterSheet } from './components/gameplay/character-sheet/character-
 import { Currency } from './components/gameplay/currency/currency';
 import { Classes } from './components/gameplay/classes/classes';
 import { JoinCampaign } from './components/gameplay/join-campaign/join-campaign';
+import { ForgotPassword } from './components/auth/forgot-password/forgot-password';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component:  Login},
   { path: 'register', component: NewUser },
+  { path: 'forgot-password', component: ForgotPassword },
   { path: 'home', component: Home, canActivate: [authGuard] },
   { path: 'join', component: JoinCampaign, canActivate: [authGuard]},
   { path: 'my-campaigns', component: CreateCampaign, canActivate: [authGuard]},

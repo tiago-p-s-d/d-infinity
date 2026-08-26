@@ -7,7 +7,7 @@ import { environment } from '../../../../environments/environment';
   providedIn: 'root',
 })
 export class SheetService {
-  private apiUrl = `${environment.apiUrl}/CharacterSheetModel`;
+  private apiUrl = `${environment.apiUrl}/character-sheet-model`;
 
   constructor(private http: HttpClient) {}
 

@@ -9,7 +9,7 @@ using System.Text.Json;
 namespace Api.Controllers.Gameplay;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/character-sheet-model")]
 [Authorize]
 public class CharacterSheetModelController(AppDbContext context) : ControllerBase
 {

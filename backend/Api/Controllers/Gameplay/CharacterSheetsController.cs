@@ -15,7 +15,7 @@ public class CharacterSheetUpdateDto
 }
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/character-sheet")]
 [Authorize]
 public class CharacterSheetsController(AppDbContext context) : ControllerBase
 {
@@ -46,7 +46,7 @@ public class CharacterSheetsController(AppDbContext context) : ControllerBase
             .Include(s => s.Model)
             .FirstOrDefaultAsync(s => s.CampaignId == campaignId && s.PlayerId == userId);
 
-        if (sheet == null) return NotFound();
+        if (sheet == null) return Ok(null);
 
         return Ok(new
         {
@@ -66,8 +66,14 @@ public class CharacterSheetsController(AppDbContext context) : ControllerBase
     [HttpPost]
     public async Task<ActionResult<CharacterSheet>> PostCharacterSheet(CharacterSheet characterSheet)
     {
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
+
+        characterSheet.PlayerId = userId.Value;
+
         _context.CharacterSheets.Add(characterSheet);
         await _context.SaveChangesAsync();
+        
         return CreatedAtAction(nameof(GetCharacterSheet), new { id = characterSheet.Id }, characterSheet);
     }
 

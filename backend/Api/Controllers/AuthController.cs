@@ -1,75 +1,32 @@
+using System.ComponentModel.DataAnnotations;
 using Api.Data;
-using Api.Models.User; 
-using Api.Infrastructure;
+using Api.Models.User;
+using Api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
-using System.Text;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.ComponentModel.DataAnnotations;
 
 namespace Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(AppDbContext context, IConfiguration config, EmailService emailService) : ControllerBase
+public class AuthController(
+    AppDbContext context,
+    TokenService tokenService,
+    VerificationService verificationService,
+    EmailService emailService) : ControllerBase
 {
     private readonly AppDbContext _context = context;
-    private readonly IConfiguration _config = config;
+    private readonly TokenService _tokenService = tokenService;
+    private readonly VerificationService _verificationService = verificationService;
     private readonly EmailService _emailService = emailService;
-
-    [HttpPost("send-code")]
-    public async Task<IActionResult> SendCode([FromBody] string email)
-    {
-        if (string.IsNullOrWhiteSpace(email)) return BadRequest("Email is required.");
-
-        var code = new Random().Next(100000, 999999).ToString();
-
-        var verification = new UserVerification
-        {
-            Email = email,
-            Code = code,
-            ExpiresAt = DateTime.UtcNow.AddMinutes(10),
-            IsUsed = false
-        };
-
-        _context.UserVerifications.Add(verification);
-        await _context.SaveChangesAsync();
-
-        try 
-        {
-            await _emailService.SendVerificationCode(email, code);
-            return Ok(new { message = "Code sent successfully!" });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Error sending email: {ex.Message}");
-        }
-    }
-
-    [HttpPost("verify-code")]
-    public async Task<IActionResult> VerifyCode([FromBody] VerifyRequest request)
-    {
-        var record = await _context.UserVerifications
-            .Where(v => v.Email == request.Email && v.Code == request.Code && !v.IsUsed)
-            .OrderByDescending(v => v.Id)
-            .FirstOrDefaultAsync();
-
-        if (record == null || record.ExpiresAt < DateTime.UtcNow)
-            return BadRequest(new { message = "Invalid or expired code." });
-
-        record.IsUsed = true;
-        await _context.SaveChangesAsync();
-
-        return Ok(new { message = "Email verified!" });
-    }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto request)
     {
         if (await _context.Users.AnyAsync(u => u.Email == request.Email))
+        {
             return BadRequest(new { message = "This email is already registered." });
+        }
 
         var user = new User
         {
@@ -80,51 +37,124 @@ public class AuthController(AppDbContext context, IConfiguration config, EmailSe
 
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
-        return Ok(new { message = "User created successfully!" });
-    }
 
+        return Created(string.Empty, new { message = "User created successfully!" });
+    }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto request)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
-        
-        if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
-            return Unauthorized(new { message = "Invalid email or password." });
 
-        return Ok(new { token = GenerateJwt(user), message = "Login successful!" });
-    }
-
-    private string GenerateJwt(User user)
-    {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(_config["Jwt:Key"]!);
-        var tokenDescriptor = new SecurityTokenDescriptor
+        if (user is null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
         {
-            Subject = new ClaimsIdentity([
-                new Claim("id", user.Id.ToString()),
-                new Claim("name", user.Name),
-                new Claim("email", user.Email)
-            ]),
-            Expires = DateTime.UtcNow.AddHours(3),
-            Issuer = _config["Jwt:Issuer"],
-            Audience = _config["Jwt:Audience"],
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-        };
-        return tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
+            return Unauthorized(new { message = "Invalid email or password." });
+        }
+
+        return Ok(new { token = _tokenService.GenerateJwt(user), message = "Login successful!" });
+    }
+
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto request)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+
+        // Security: Return generic message to avoid email enumeration
+        if (user is null)
+        {
+            return Ok(new { message = "If the email is registered, a recovery code has been sent." });
+        }
+
+        var code = await _verificationService.GenerateAndSaveCodeAsync(request.Email, expirationMinutes: 10);
+
+        try
+        {
+            await _emailService.SendVerificationCode(request.Email, code);
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while sending the email." });
+        }
+
+        return Ok(new { message = "If the email is registered, a recovery code has been sent." });
+    }
+
+    [HttpPost("verify-reset-code")]
+    public async Task<IActionResult> VerifyResetCode([FromBody] VerifyCodeDto request)
+    {
+        var isValid = await _verificationService.ValidateCodeAsync(request.Email, request.Code, markAsUsed: false);
+
+        if (!isValid)
+        {
+            return BadRequest(new { message = "Invalid or expired recovery code." });
+        }
+
+        return Ok(new { message = "Code verified successfully." });
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto request)
+    {
+        var isValid = await _verificationService.ValidateCodeAsync(request.Email, request.Code, markAsUsed: true);
+
+        if (!isValid)
+        {
+            return BadRequest(new { message = "Invalid or expired recovery code." });
+        }
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+        if (user is null)
+        {
+            return NotFound(new { message = "User not found." });
+        }
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Password updated successfully!" });
+    }
+    [HttpPost("send-code")]
+public async Task<IActionResult> SendCode([FromBody] SendCodeDto request)
+{
+    var code = await _verificationService.GenerateAndSaveCodeAsync(request.Email, expirationMinutes: 10);
+
+    try 
+    {
+        await _emailService.SendVerificationCode(request.Email, code);
+        return Ok(new { message = "Code sent successfully!" });
+    }
+    catch (Exception)
+    {
+        return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Error sending email." });
     }
 }
-
-
-public record VerifyRequest(string Email, string Code);
-
-public class RegisterDto {
-    public required string Name { get; set; }
-    [EmailAddress] public required string Email { get; set; }
-    [MinLength(3)] public required string Password { get; set; }
 }
 
-public class LoginDto {
-    [EmailAddress] public required string Email { get; set; }
-    public required string Password { get; set; }
+
+#region DTOs
+
+public record ForgotPasswordDto([Required, EmailAddress] string Email);
+
+public record VerifyCodeDto([Required, EmailAddress] string Email, [Required] string Code);
+
+public record ResetPasswordDto(
+    [Required, EmailAddress] string Email,
+    [Required] string Code,
+    [Required, MinLength(6)] string NewPassword
+);
+
+public class RegisterDto
+{
+    [Required] public required string Name { get; set; }
+    [Required, EmailAddress] public required string Email { get; set; }
+    [Required, MinLength(6)] public required string Password { get; set; }
 }
+
+public class LoginDto
+{
+    [Required, EmailAddress] public required string Email { get; set; }
+    [Required] public required string Password { get; set; }
+}
+public record SendCodeDto([Required, EmailAddress] string Email);
+
+#endregion

@@ -20,6 +20,8 @@ services:
     container_name: d-infinity-back
     networks:
       - d-infinity-net
+    # O segredo para o backend não precisar de rebuild:
+    command: dotnet watch run --urls=http://0.0.0.0:8080
     volumes:
       - ./backend/Api:/app
       - /app/bin
@@ -29,6 +31,7 @@ services:
       - "5000:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - DOTNET_USE_POLLING_FILE_WATCHER=1 # OBRIGATÓRIO para Docker no Linux detectar mudanças
       - ConnectionStrings__DefaultConnection=Server=db;Database=${DB_NAME};Uid=root;Pwd=${DB_ROOT_PASSWORD};
       - Jwt__Key=${JWT_KEY}
       - Jwt__Issuer=${JWT_ISSUER}
@@ -45,12 +48,16 @@ services:
     container_name: d-infinity-front
     networks:
       - d-infinity-net
+    # O segredo para o frontend não precisar de rebuild:
+    command: npm run start -- --host 0.0.0.0 --poll 2000 --port 4000
     volumes:
       - ./frontend:/app 
       - /app/node_modules 
       - /app/.angular
     ports:
       - "4200:4000"
+    depends_on:
+      - backend
 
 volumes:
   db_data:

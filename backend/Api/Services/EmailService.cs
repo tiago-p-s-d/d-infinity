@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Mail;
 
-namespace Api.Infrastructure;
+namespace Api.Services; 
 
 public class EmailService(IConfiguration config)
 {

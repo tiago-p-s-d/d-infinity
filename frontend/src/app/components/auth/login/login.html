@@ -12,6 +12,11 @@
       <input type="password" formControlName="password" placeholder="Enter your password">
     </div>
 
+    <!-- Forgot password link -->
+    <div class="forgot-password-link">
+      <a routerLink="/forgot-password">Forgot password?</a>
+    </div>
+
     <button type="submit" [disabled]="loginForm.invalid">Login</button>
 
     <div class="footer-links">

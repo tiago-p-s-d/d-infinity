@@ -49,7 +49,7 @@
               <span class="badge">{{ campaign.systemName ?? 'No System' }}</span>
             </div>
           </div>
-          <p class="race-description">{{ campaign.about || 'A mysterious adventure awaits.' }}</p>
+          <p class="join-description">{{ campaign.about || 'A mysterious adventure awaits.' }}</p>
           <div class="card-actions-bottom">
             <button class="btn-secondary" (click)="openSheetModal(campaign)">
               Edit Character Sheet
@@ -64,11 +64,11 @@
   </div>
 </div>
 
-<!-- Modal -->
-<app-sheet-edit-modal
-  [open]="modalOpen"
-  [sheet]="modalSheet()"
-  [definitions]="modalDefinitions()"
-  (saved)="onSheetSaved()"
-  (closed)="closeModal()"
-/>
+@if (modalOpen && modalSheet()) {
+  <app-sheet-edit-modal
+    [sheet]="modalSheet()"
+    [definitions]="modalDefinitions()"
+    (saved)="onSheetSaved()"
+    (closed)="closeModal()"
+  />
+}

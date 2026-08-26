@@ -3,6 +3,26 @@ import { HttpClient } from '@angular/common/http';
 import { tap, BehaviorSubject, Observable } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface VerifyResetCodeRequest {
+  email: string;
+  code: string;
+}
+
+export interface ResetPasswordRequest {
+  email: string;
+  code: string;
+  newPassword: string;
+}
+
+export interface AuthResponse {
+  token?: string;
+  message?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -16,20 +36,13 @@ export class Auth {
     this.refreshUser();
   }
 
-  sendCode(email: string): Observable<any> {
-    // Keep this exact format since your Backend expects a raw JSON-quoted string
-    return this.http.post(`${this.apiUrl}/send-code`, JSON.stringify(email), {
-      headers: { 'Content-Type': 'application/json' }
-    });
+  register(userData: any): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, userData);
   }
 
-  verifyCode(email: string, code: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/verify-code`, { email, code });
-  }
-
-  login(credentials: any) {
-    return this.http.post<any>(`${this.apiUrl}/login`, credentials).pipe(
-      tap(res => {
+  login(credentials: any): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
+      tap((res) => {
         if (res.token) {
           localStorage.setItem('token', res.token);
           this.refreshUser();
@@ -38,14 +51,48 @@ export class Auth {
     );
   }
 
-  private refreshUser() {
+  forgotPassword(data: ForgotPasswordRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/forgot-password`, data);
+  }
+
+  verifyResetCode(data: VerifyResetCodeRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/verify-reset-code`, data);
+  }
+
+  resetPassword(data: ResetPasswordRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/reset-password`, data);
+  }
+
+  logout(): void {
+    localStorage.removeItem('token');
+    this.userSubject.next(null);
+  }
+
+  getUser(): any {
+    return this.userSubject.value;
+  }
+
+  sendVerificationCode(email: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/send-verification-code`, { email });
+  }
+  sendCode(email: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/send-code`, { email });
+  }
+
+  verifyCode(email: string, code: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/verify-code`, { email, code });
+  }
+
+  private refreshUser(): void {
     const token = localStorage.getItem('token');
     if (token) {
       try {
         const decoded: any = jwtDecode(token);
+
+        // Supports standard ClaimTypes mapped by ASP.NET Core JWT
         this.userSubject.next({
-          id: decoded.id, 
-          name: decoded.name,
+          id: decoded.nameid || decoded.sub || decoded.id,
+          name: decoded.unique_name || decoded.name,
           email: decoded.email
         });
       } catch (error) {
@@ -53,18 +100,5 @@ export class Auth {
         this.userSubject.next(null);
       }
     }
-  }
-
-  logout() {
-    localStorage.removeItem('token');
-    this.userSubject.next(null);
-  }
-
-  getUser() {
-    return this.userSubject.value;
-  }
-
-  register(userData: any) {
-    return this.http.post(`${this.apiUrl}/register`, userData);
   }
 }
