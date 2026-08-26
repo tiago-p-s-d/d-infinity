@@ -1,6 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { Header } from '../../layout/header/header';
 import { CampaignService } from '../../../services/campaign/campaign.service';
 import { SheetEditModal } from './sheet-edit-modal/sheet-edit-modal';
@@ -8,7 +9,7 @@ import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-join-campaign',
-  imports: [CommonModule, ReactiveFormsModule, Header, SheetEditModal],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, Header, SheetEditModal],
   templateUrl: './join-campaign.html',
   styleUrl: './join-campaign.scss',
 })
@@ -68,44 +69,53 @@ export class JoinCampaign implements OnInit {
   }
 
   openSheetModal(campaign: any) {
-  if (!campaign.campaignId || !campaign.systemId) return;
+    if (!campaign.campaignId || !campaign.systemId) return;
 
-  this.loading.set(true);
+    this.loading.set(true);
 
-  forkJoin({
-    sheet: this.campaignService.getSheetByCampaign(campaign.campaignId),
-    model: this.campaignService.getSheetModelBySystem(campaign.systemId)
-  }).subscribe({
-    next: (res) => {
-      // Definimos as definições (structure) primeiro
-      const defs = res.model.definitions || res.model.Definitions || [];
-      this.modalDefinitions.set(defs);
+    forkJoin({
+      sheet: this.campaignService.getSheetByCampaign(campaign.campaignId),
+      model: this.campaignService.getSheetModelBySystem(campaign.systemId)
+    }).subscribe({
+      next: (res) => {
+        const defs = res.model?.definitions || res.model?.Definitions || [];
+        this.modalDefinitions.set(defs);
 
-      if (res.sheet) {
-        // Se a ficha existe no banco
-        this.modalSheet.set(res.sheet);
-      } else {
-        // Se a ficha NÃO existe (Lazy Creation)
-        // Importante: Guardar o modelId e campaignId para o POST depois
-        this.modalSheet.set({
-          id: null,
-          characterName: '',
-          campaignId: campaign.campaignId,
-          modelId: res.model.id || res.model.Id,
-          Values: '{}' 
-        });
+        if (res.sheet) {
+          // Normaliza values para garantir que seja um objeto acessível
+          let parsedValues = res.sheet.values ?? res.sheet.Values ?? {};
+          if (typeof parsedValues === 'string') {
+            try {
+              parsedValues = JSON.parse(parsedValues);
+            } catch {
+              parsedValues = {};
+            }
+          }
+
+          this.modalSheet.set({
+            ...res.sheet,
+            values: parsedValues
+          });
+        } else {
+          this.modalSheet.set({
+            id: null,
+            characterName: '',
+            campaignId: campaign.campaignId,
+            modelId: res.model?.id || res.model?.Id,
+            values: {}
+          });
+        }
+
+        this.modalOpen = true;
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error('Error loading sheet data:', err);
+        this.loading.set(false);
+        alert('Could not load character data.');
       }
-      
-      this.modalOpen = true; // Só aqui o modal deve aparecer
-      this.loading.set(false);
-    },
-    error: (err) => {
-      console.error('Erro ao abrir modal:', err);
-      this.loading.set(false);
-      alert('Could not load character data.');
-    }
-  });
-}
+    });
+  }
 
   closeModal() {
     this.modalOpen = false;

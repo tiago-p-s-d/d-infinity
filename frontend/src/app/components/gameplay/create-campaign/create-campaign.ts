@@ -1,6 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { SystemService } from '../../../services/gameplay/systems/system-service';
 import { CampaignService } from '../../../services/campaign/campaign.service';
 import { Header } from '../../layout/header/header';
@@ -9,7 +10,7 @@ import { DeleteButton } from '../../layout/delete-button/delete-button';
 
 @Component({
   selector: 'app-create-campaign',
-  imports: [CommonModule, ReactiveFormsModule, Header, EditButton, DeleteButton],
+  imports: [CommonModule, ReactiveFormsModule,RouterModule, Header, EditButton, DeleteButton],
   templateUrl: './create-campaign.html',
   styleUrl: './create-campaign.scss',
 })

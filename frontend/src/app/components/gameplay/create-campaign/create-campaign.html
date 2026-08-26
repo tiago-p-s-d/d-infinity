@@ -68,6 +68,13 @@
           <button type="button" (click)="copyInvite(campaign.inviteCode)">Copy</button>
         </div>
         <p class="campaign-description">{{ campaign.about || 'A mysterious adventure yet to be told.' }}</p>
+
+        <!-- Ação para o Mestre entrar na sessão/chat -->
+        <div class="card-actions-bottom">
+          <a class="btn-primary-action" [routerLink]="['/campaigns', campaign.id, 'chat']">
+            Enter Chat Room
+          </a>
+        </div>
       </div>
       } @empty {
       <p class="empty-msg">No campaigns created yet.</p>

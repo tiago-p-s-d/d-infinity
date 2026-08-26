@@ -89,11 +89,23 @@ export class Auth {
       try {
         const decoded: any = jwtDecode(token);
 
-        // Supports standard ClaimTypes mapped by ASP.NET Core JWT
+        // Mapeia tanto os schemas XML padrão do .NET quanto claims curtas padrão JWT
+        const userId = decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] 
+                    || decoded.nameid 
+                    || decoded.sub 
+                    || decoded.id;
+
+        const userName = decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] 
+                      || decoded.unique_name 
+                      || decoded.name;
+
+        const userEmail = decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] 
+                       || decoded.email;
+
         this.userSubject.next({
-          id: decoded.nameid || decoded.sub || decoded.id,
-          name: decoded.unique_name || decoded.name,
-          email: decoded.email
+          id: userId ? Number(userId) : null,
+          name: userName,
+          email: userEmail
         });
       } catch (error) {
         localStorage.removeItem('token');

@@ -1,0 +1,58 @@
+<div class="chat-wrapper">
+  <header class="chat-header">
+    <div class="chat-info">
+      <div class="status-dot" [class.online]="chatService.isConnected()"></div>
+      <div class="title-group">
+        <h3>Campaign Room #{{ campaignId }}</h3>
+        <span class="status-label">{{ chatService.isConnected() ? 'Connected' : 'Connecting...' }}</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="chat-messages" #scrollContainer>
+    @for (msg of chatService.messages(); track msg.id) {
+      <div class="message-group" [class.outgoing]="isMyMessage(msg.userId)" [class.incoming]="!isMyMessage(msg.userId)">
+        <div class="bubble" [class.dice-card]="msg.type === 'DiceRoll'">
+          @if (!isMyMessage(msg.userId)) {
+            <span class="sender-name">{{ msg.senderName }}</span>
+          }
+
+          <div class="message-content">
+            @if (msg.type === 'DiceRoll') {
+              <span class="dice-icon">🎲 </span>
+            }
+            <span class="text">{{ msg.content }}</span>
+          </div>
+
+          <div class="message-footer">
+            <span class="time">{{ msg.sentAt | date:'HH:mm' }}</span>
+          </div>
+        </div>
+      </div>
+    } @empty {
+      <div class="empty-state">
+        <div class="empty-icon">💬</div>
+        <h4>No messages yet</h4>
+        <p>Type a message below or roll dice using <code>/r 1d20+5</code></p>
+      </div>
+    }
+  </main>
+
+  <footer class="chat-footer">
+    <form class="chat-input-form" (ngSubmit)="onSend()">
+      <input
+        type="text"
+        [(ngModel)]="messageContent"
+        name="content"
+        placeholder="Type a message or /r 1d20+2..."
+        autocomplete="off"
+        [disabled]="loading"
+      />
+      <button type="submit" [disabled]="!messageContent.trim() || loading">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+        </svg>
+      </button>
+    </form>
+  </footer>
+</div>
