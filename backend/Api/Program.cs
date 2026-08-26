@@ -1,5 +1,7 @@
 using Api.Data;
+using Api.Hubs;
 using Api.Services;
+using Api.Services.Gameplay;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -49,6 +51,21 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwtAudience,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(finalKey))
     };
+
+    // Permite que o SignalR receba o JWT via query parameter na conexão WebSocket
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs/chat"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 
 builder.Services.AddAuthorization();
@@ -60,19 +77,24 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     });
 
+// SignalR
+builder.Services.AddSignalR();
+
 builder.Services.AddOpenApi();
 
 builder.Services.AddCors(options => {
     options.AddDefaultPolicy(policy => {
         policy.WithOrigins("http://localhost:4200")
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials(); // Obrigatório para conexões SignalR
     });
 });
 
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<VerificationService>();
+builder.Services.AddScoped<ChatService>(); // Registrado
 
 var app = builder.Build();
 
@@ -87,5 +109,6 @@ app.UseAuthentication();
 app.UseAuthorization();  
 
 app.MapControllers();
+app.MapHub<ChatHub>("/hubs/chat"); // Rota do SignalR Hub
 
 app.Run();

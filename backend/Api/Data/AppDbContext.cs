@@ -14,7 +14,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Campaign> Campaigns { get; set; } = null!;
     public DbSet<CampaignUser> CampaignMembers { get; set; } = null!;
 
-    public DbSet<SystemModel> Systems { get; set; } = null!;        
+    public DbSet<SystemModel> Systems { get; set; } = null!;
     public DbSet<SystemRaceGroup> SystemRaceGroups { get; set; } = null!;
     public DbSet<SystemItemGroup> SystemItemGroups { get; set; } = null!;
     public DbSet<SystemSpellGroup> SystemSpellGroups { get; set; } = null!;
@@ -41,13 +41,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<Currency> Currencies { get; set; } = null!;
     public DbSet<CurrencyValue> CurrencyValues { get; set; } = null!;
-
+    public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
-        
+
         modelBuilder.Entity<SystemRaceGroup>()
             .HasIndex(e => new { e.SystemId, e.RaceGroupId }).IsUnique();
 
@@ -62,7 +62,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         modelBuilder.Entity<SystemMapGroup>()
             .HasIndex(e => new { e.SystemId, e.MapGroupId }).IsUnique();
-            
+
 
         modelBuilder.Entity<SystemRaceGroup>()
             .HasOne(e => e.System)
