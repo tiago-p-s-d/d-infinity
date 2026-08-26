@@ -54,6 +54,35 @@ public class AuthController(
         return Ok(new { token = _tokenService.GenerateJwt(user), message = "Login successful!" });
     }
 
+    [HttpPost("send-code")]
+    public async Task<IActionResult> SendCode([FromBody] SendCodeDto request)
+    {
+        var code = await _verificationService.GenerateAndSaveCodeAsync(request.Email, expirationMinutes: 10);
+
+        try
+        {
+            await _emailService.SendVerificationCode(request.Email, code);
+            return Ok(new { message = "Code sent successfully!" });
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Error sending email." });
+        }
+    }
+
+    [HttpPost("verify-code")]
+    public async Task<IActionResult> VerifyCode([FromBody] VerifyCodeDto request)
+    {
+        var isValid = await _verificationService.ValidateCodeAsync(request.Email, request.Code, markAsUsed: true);
+
+        if (!isValid)
+        {
+            return BadRequest(new { message = "Invalid or expired code." });
+        }
+
+        return Ok(new { message = "Email verified successfully!" });
+    }
+
     [HttpPost("forgot-password")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto request)
     {
@@ -113,29 +142,15 @@ public class AuthController(
 
         return Ok(new { message = "Password updated successfully!" });
     }
-    [HttpPost("send-code")]
-public async Task<IActionResult> SendCode([FromBody] SendCodeDto request)
-{
-    var code = await _verificationService.GenerateAndSaveCodeAsync(request.Email, expirationMinutes: 10);
-
-    try 
-    {
-        await _emailService.SendVerificationCode(request.Email, code);
-        return Ok(new { message = "Code sent successfully!" });
-    }
-    catch (Exception)
-    {
-        return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Error sending email." });
-    }
 }
-}
-
 
 #region DTOs
 
-public record ForgotPasswordDto([Required, EmailAddress] string Email);
+public record SendCodeDto([Required, EmailAddress] string Email);
 
 public record VerifyCodeDto([Required, EmailAddress] string Email, [Required] string Code);
+
+public record ForgotPasswordDto([Required, EmailAddress] string Email);
 
 public record ResetPasswordDto(
     [Required, EmailAddress] string Email,
@@ -155,6 +170,5 @@ public class LoginDto
     [Required, EmailAddress] public required string Email { get; set; }
     [Required] public required string Password { get; set; }
 }
-public record SendCodeDto([Required, EmailAddress] string Email);
 
 #endregion

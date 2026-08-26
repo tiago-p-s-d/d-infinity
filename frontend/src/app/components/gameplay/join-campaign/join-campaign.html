@@ -54,6 +54,9 @@
             <button class="btn-secondary" (click)="openSheetModal(campaign)">
               Edit Character Sheet
             </button>
+            <a class="btn-primary-action" [routerLink]="['/campaigns', campaign.campaignId, 'chat']">
+              Open Chat
+            </a>
           </div>
         </div>
       } @empty {
