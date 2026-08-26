@@ -1,5 +1,7 @@
+using System.Collections.Generic;   
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Api.Models.Gameplay; 
 
 namespace Api.Models;
 
@@ -14,7 +16,17 @@ public class Campaign
     [Column("campaign_name")]
     public required string CampaignName { get; set; }
 
-    public virtual ICollection<User> DungeonMasters { get; set; } = new List<User>();
+    [Column("about")]
+    public string? About { get; set; }
 
-    public virtual ICollection<User> Players { get; set; } = new List<User>();
+    [Column("system_id")]
+    public int SystemId { get; set; }
+    
+    [ForeignKey("SystemId")]
+    public virtual SystemModel System { get; set; } = null!;
+
+    [Column("invite_code")]
+    public string InviteCode { get; set; } = string.Empty;
+
+    public virtual ICollection<CampaignUser> CampaignMembers { get; set; } = [];
 }

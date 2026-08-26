@@ -9,7 +9,7 @@
         <i class="icon-user"></i> <span>My Profile</span>
       </a>
     </li>
-    
+
     <div class="menu-divider">Play</div>
 
     <li>
@@ -17,14 +17,16 @@
         <i class="icon-bolt"></i> <span>Quick Play</span>
       </a>
     </li>
+
     <li>
-      <a routerLink="/start-own" routerLinkActive="active">
-        <i class="icon-plus"></i> <span>Start your own</span>
+      <a routerLink="/my-campaigns" routerLinkActive="active">
+        <i class="icon-plus"></i> <span>My campaigns</span>
       </a>
     </li>
+
     <li>
       <a routerLink="/join" routerLinkActive="active">
-        <i class="icon-users"></i> <span>Join</span>
+        <i class="icon-users"></i> <span>Join Campaign</span>
       </a>
     </li>
 
@@ -35,9 +37,57 @@
         <i class="icon-heart"></i> <span>Friends</span>
       </a>
     </li>
+
+    <div class="menu-divider">For DMs</div>
+
+    <li>
+      <a routerLink="/dm/systems" routerLinkActive="active">
+        <i class="icon-settings"></i> <span>Systems</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/dm/character-sheets" routerLinkActive="active">
+        <i class="icon-races"></i> <span>Character sheets</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/dm/races" routerLinkActive="active">
+        <i class="icon-races"></i> <span>Races</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/dm/spells" routerLinkActive="active">
+        <i class="icon-magic"></i> <span>Spells</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/dm/skills" routerLinkActive="active">
+        <i class="icon-star"></i> <span>Skills</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/dm/maps" routerLinkActive="active">
+        <i class="icon-map"></i> <span>Maps</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/dm/items" routerLinkActive="active">
+        <i class="icon-archive"></i> <span>Items</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/dm/currency" routerLinkActive="active">
+        <i class="icon-archive"></i> <span>Currency</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/dm/classes" routerLinkActive="active">
+        <i class="icon-archive"></i> <span>Classes</span>
+      </a>
+    </li>
   </ul>
 
   <div class="sidebar-footer">
-    <button class="logout-btn">Logout</button>
+    <button class="logout-btn" (click)="onLogout()">Logout</button>
   </div>
 </nav>

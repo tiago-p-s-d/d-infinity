@@ -1,0 +1,51 @@
+<div class="systems-page">
+  <app-header></app-header>
+  <div class="systems-container">
+    <div class="list-header-flex">
+      <div class="title-text">
+        <h2>Economy Forge</h2>
+        <p>Define currencies and exchange rates for your world.</p>
+      </div>
+    </div>
+
+    <section class="form-section">
+      <form [formGroup]="currencyForm" (ngSubmit)="onSubmit()" class="create-form">
+        <div class="full-field">
+          <label>Economy Name</label>
+          <input type="text" formControlName="name" placeholder="Ex: Imperial Standard, Wasteland Barter">
+        </div>
+
+        <div class="full-field" style="margin-top: 1.5rem;">
+          <label>Currency Values & Rates</label>
+          <input type="text" formControlName="rawValues" 
+                 placeholder="Format: Name:Rate; Example: Gold:1; Silver:10; Copper:100">
+          <small>The rate is relative to your base currency (e.g., 1 Gold = 10 Silver).</small>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" [disabled]="currencyForm.invalid">Create Economy</button>
+        </div>
+      </form>
+    </section>
+
+    <div class="systems-grid">
+      @for (curr of currencies(); track curr.id) {
+        <div class="system-card">
+          <div class="card-header-flex">
+            <h3>{{ curr.name }}</h3>
+            <div class="card-actions">
+              <app-edit-button></app-edit-button>
+              <app-delete-button (onClick)="onDelete(curr)"></app-delete-button>
+            </div>
+          </div>
+          
+          <div class="stats-mini">
+            @for (val of curr.values; track val.id) {
+              <span><strong>{{ val.name }}:</strong> {{ val.conversionRate }}x</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

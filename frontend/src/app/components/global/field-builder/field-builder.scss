@@ -1,0 +1,108 @@
+// Variáveis de cores (ajuste conforme o seu theme global)
+$primary-blue: #007bff;
+$dark-bg: #1a1a1a;
+$card-bg: #242424;
+$border-color: #333;
+$text-muted: #888;
+$danger: #dc3545;
+
+.field-builder-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+
+  .section-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $primary-blue;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.fields-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto; // Duas colunas iguais e o botão de lixo
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 8px;
+  background: $card-bg;
+  border: 1px solid $border-color;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    border-color: rgba($primary-blue, 0.5);
+    transform: translateX(4px);
+  }
+
+  .input-group {
+    input, select {
+      width: 100%;
+      background: $dark-bg;
+      border: 1px solid $border-color;
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+
+      &:focus {
+        border-color: $primary-blue;
+      }
+    }
+
+    select {
+      cursor: pointer;
+    }
+  }
+}
+
+.btn-remove {
+  background: transparent;
+  border: none;
+  color: $text-muted;
+  cursor: pointer;
+  padding: 8px;
+  font-size: 1.1rem;
+  transition: color 0.2s;
+
+  &:hover {
+    color: $danger;
+  }
+}
+
+.btn-add-dashed {
+  width: 100%;
+  background: transparent;
+  border: 2px dashed $border-color;
+  color: $text-muted;
+  padding: 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+
+  i {
+    font-size: 0.8rem;
+  }
+
+  &:hover {
+    border-color: $primary-blue;
+    color: #fff;
+    background: rgba($primary-blue, 0.05);
+  }
+}

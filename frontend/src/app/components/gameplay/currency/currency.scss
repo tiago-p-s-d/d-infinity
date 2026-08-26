@@ -1,0 +1,98 @@
+$bg-dark: #121212;
+$card-bg: #1e1e1e;
+$border-color: #333;
+$text-main: #e0e0e0;
+$text-muted: #888;
+$primary-blue: #007bff;
+$economy-gold: #ffc107; // Cor dourada para o sistema de economia
+
+.systems-page {
+  min-height: 100vh;
+  background-color: $bg-dark;
+  color: $text-main;
+  font-family: 'Inter', sans-serif;
+  
+  .systems-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem;
+  }
+
+  .list-header-flex {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    margin-bottom: 2.5rem;
+
+    .title-text {
+      h2 { color: #fff; font-size: 2.2rem; margin: 0; }
+      p { color: $text-muted; margin-top: 8px; font-size: 1.1rem; }
+    }
+  }
+
+  .create-form {
+    background: $card-bg;
+    padding: 2.5rem;
+    border-radius: 12px;
+    border: 1px solid $border-color;
+    margin-bottom: 4rem;
+
+    .full-field {
+      margin-bottom: 2rem;
+      label { display: block; margin-bottom: 0.8rem; color: $text-muted; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+      input { width: 100%; background: $bg-dark; border: 1px solid $border-color; padding: 1.1rem; border-radius: 8px; color: #fff; outline: none; transition: border-color 0.2s;
+        &:focus { border-color: $economy-gold; }
+      }
+      small { color: #555; font-size: 0.8rem; margin-top: 0.5rem; display: block; }
+    }
+  }
+
+  .systems-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+
+    .system-card {
+      background: $card-bg;
+      border: 1px solid $border-color;
+      border-radius: 12px;
+      padding: 1.8rem;
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 4px; height: 100%;
+        background: $economy-gold; // Barra dourada para economia
+      }
+
+      .card-header-flex {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1.2rem;
+        h3 { margin: 0; color: #fff; }
+      }
+
+      .stats-mini {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        span {
+          background: rgba($economy-gold, 0.1);
+          color: $economy-gold;
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 0.8rem;
+          font-weight: 600;
+          border: 1px solid rgba($economy-gold, 0.2);
+        }
+      }
+    }
+  }
+}
+
+.btn-primary { 
+  background-color: $primary-blue; color: white; border: none; padding: 1rem 2rem; border-radius: 8px; font-weight: 600; cursor: pointer;
+  &:hover { background-color: #0056b3; }
+}

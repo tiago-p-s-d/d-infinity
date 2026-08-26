@@ -59,3 +59,34 @@
     }
   }
 }
+
+.code-input {
+  background: #1e1e1e;
+  color: #fff;
+  border: 2px solid #333;
+  padding: 15px;
+  border-radius: 8px;
+  width: 100%;
+  margin-top: 10px;
+  
+  &:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid #444;
+  color: #888;
+  margin-top: 10px;
+  width: 100%;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    color: #fff;
+    border-color: #666;
+  }
+}

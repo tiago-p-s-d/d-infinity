@@ -1,0 +1,138 @@
+$bg-dark: #121212;
+$card-bg: #1e1e1e;
+$border-color: #333;
+$text-muted: #888;
+$primary-blue: #007bff;
+$primary-hover: #0056b3;
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-box {
+  background: $card-bg;
+  border: 1px solid $border-color;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 720px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid $border-color;
+
+  h3 {
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    color: $text-muted;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    line-height: 1;
+    transition: color 0.2s;
+
+    &:hover { color: #fff; }
+  }
+}
+
+.modal-body {
+  padding: 2rem;
+  overflow-y: auto;
+  flex: 1;
+
+  .sheet-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .field, .full-field {
+    label {
+      display: block;
+      margin-bottom: 0.6rem;
+      color: $text-muted;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      background: $bg-dark;
+      border: 1px solid $border-color;
+      padding: 0.9rem 1rem;
+      border-radius: 8px;
+      color: #fff;
+      outline: none;
+      font-family: inherit;
+      box-sizing: border-box;
+
+      &:focus { border-color: $primary-blue; }
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    select option { background: $card-bg; }
+  }
+
+  .full-field {
+    grid-column: 1 / -1;
+  }
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.btn-save {
+  background: $primary-blue;
+  color: white;
+  border: none;
+  padding: 0.85rem 1.75rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover { background: $primary-hover; }
+  &:disabled { background: #333; color: #666; cursor: not-allowed; }
+}
+
+.btn-secondary {
+  background: transparent;
+  color: $text-muted;
+  border: 1px solid #444;
+  padding: 0.85rem 1.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+
+  &:hover { color: #fff; border-color: #777; }
+}
