@@ -1,12 +1,23 @@
-<div class="chat-wrapper">
+<div class="chat-wrapper" [class.floating]="chatMode() === 'floating'">
   <header class="chat-header">
     <div class="chat-info">
       <div class="status-dot" [class.online]="chatService.isConnected()"></div>
       <div class="title-group">
-        <h3>Campaign Room #{{ campaignId }}</h3>
-        <span class="status-label">{{ chatService.isConnected() ? 'Connected' : 'Connecting...' }}</span>
+        <h3>Room #{{ campaignId }}</h3>
+        <span class="status-label">{{ chatService.isConnected() ? 'Online' : 'Conectando...' }}</span>
       </div>
     </div>
+    
+    <button 
+      class="btn-icon" 
+      (click)="toggleChatMode()" 
+      [title]="chatMode() === 'sidebar' ? 'Modo Flutuante' : 'Fixar na Barra Lateral'">
+      @if (chatMode() === 'sidebar') {
+        <span>&#128471;</span>
+      } @else {
+        <span>&#128204;</span>
+      }
+    </button>
   </header>
 
   <main class="chat-messages" #scrollContainer>
@@ -19,7 +30,7 @@
 
           <div class="message-content">
             @if (msg.type === 'DiceRoll') {
-              <span class="dice-icon">🎲 </span>
+              <span class="dice-icon">&#127922;</span>
             }
             <span class="text">{{ msg.content }}</span>
           </div>
@@ -31,9 +42,9 @@
       </div>
     } @empty {
       <div class="empty-state">
-        <div class="empty-icon">💬</div>
-        <h4>No messages yet</h4>
-        <p>Type a message below or roll dice using <code>/r 1d20+5</code></p>
+        <div class="empty-icon">&#128172;</div>
+        <h4>Sem mensagens</h4>
+        <p>Envie <code>/r 1d20+5</code> para rolar dados</p>
       </div>
     }
   </main>
@@ -44,11 +55,10 @@
         type="text"
         [(ngModel)]="messageContent"
         name="content"
-        placeholder="Type a message or /r 1d20+2..."
+        placeholder="Mensagem ou /r 1d20+2..."
         autocomplete="off"
-        [disabled]="loading"
       />
-      <button type="submit" [disabled]="!messageContent.trim() || loading">
+      <button type="submit" [disabled]="!messageContent.trim()">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
           <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
         </svg>

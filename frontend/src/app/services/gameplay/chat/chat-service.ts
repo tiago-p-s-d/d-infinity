@@ -2,16 +2,12 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import * as signalR from '@microsoft/signalr';
+import { ChatMessage } from '../../../interfaces/chat-message';
 
-export interface ChatMessage {
-  id: number;
+export interface MapState {
   campaignId: number;
-  userId: number;
-  senderName: string;
-  content: string;
-  type: 'Text' | 'DiceRoll' | 'System';
-  metadataJson?: string;
-  sentAt: string;
+  mapUrl: string;
+  zoom: number;
 }
 
 @Injectable({
@@ -24,6 +20,7 @@ export class ChatService {
   private hubConnection: signalR.HubConnection | null = null;
   public messages = signal<ChatMessage[]>([]);
   public isConnected = signal<boolean>(false);
+  public mapState = signal<MapState>({ campaignId: 0, mapUrl: '', zoom: 1.0 });
 
   constructor(private http: HttpClient) {}
 
@@ -37,7 +34,27 @@ export class ChatService {
     return this.http.post<ChatMessage>(`${this.apiUrl}/${campaignId}/chat`, { content });
   }
 
+  public updateMapState(campaignId: number, mapUrl: string, zoom: number): void {
+    // 1. Atualização otimista imediata na tela do DM
+    this.mapState.set({ campaignId, mapUrl, zoom });
+
+    // 2. Disparo via WebSocket para sincronizar os outros jogadores
+    if (this.hubConnection && this.hubConnection.state === signalR.HubConnectionState.Connected) {
+      this.hubConnection
+        .invoke('UpdateMapState', campaignId, mapUrl, zoom)
+        .catch((err) => console.error('Erro ao emitir estado do mapa via SignalR:', err));
+    }
+  }
+
   public startConnection(campaignId: number): void {
+    if (
+      this.hubConnection &&
+      (this.hubConnection.state === signalR.HubConnectionState.Connected ||
+       this.hubConnection.state === signalR.HubConnectionState.Connecting)
+    ) {
+      return;
+    }
+
     const token = localStorage.getItem('token') || '';
 
     this.hubConnection = new signalR.HubConnectionBuilder()
@@ -47,25 +64,49 @@ export class ChatService {
       .withAutomaticReconnect()
       .build();
 
+    this.hubConnection.on('ReceiveMessage', (message: ChatMessage) => {
+      this.messages.update((prev) => [...prev, message]);
+    });
+
+    this.hubConnection.on('ReceiveMapState', (state: MapState) => {
+      this.mapState.set(state);
+    });
+
+    this.hubConnection.onreconnected(() => {
+      this.isConnected.set(true);
+      this.hubConnection?.invoke('JoinCampaignRoom', campaignId);
+    });
+
+    this.hubConnection.onclose(() => {
+      this.isConnected.set(false);
+    });
+
     this.hubConnection
       .start()
       .then(() => {
         this.isConnected.set(true);
-        this.hubConnection?.invoke('JoinCampaignRoom', campaignId);
+        return this.hubConnection?.invoke('JoinCampaignRoom', campaignId);
       })
-      .catch((err) => console.error('SignalR Connection Error: ', err));
-
-    this.hubConnection.on('ReceiveMessage', (message: ChatMessage) => {
-      this.messages.update((prev) => [...prev, message]);
-    });
+      .catch((err) => {
+        this.isConnected.set(false);
+        console.error('SignalR Connection Error:', err);
+      });
   }
 
   public stopConnection(campaignId: number): void {
     if (this.hubConnection) {
-      this.hubConnection.invoke('LeaveCampaignRoom', campaignId).finally(() => {
-        this.hubConnection?.stop();
+      if (this.hubConnection.state === signalR.HubConnectionState.Connected) {
+        this.hubConnection
+          .invoke('LeaveCampaignRoom', campaignId)
+          .catch(() => {})
+          .finally(() => {
+            this.hubConnection?.stop();
+            this.isConnected.set(false);
+          });
+      } else {
+        this.hubConnection.stop();
         this.isConnected.set(false);
-      });
+      }
     }
   }
 }

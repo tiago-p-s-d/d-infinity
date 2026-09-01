@@ -1,0 +1,15 @@
+<div class="session-room-container">
+  <main class="board-area">
+    <app-board-viewer
+      [currentMapUrl]="currentMapUrl()"
+      [zoom]="currentZoom()"
+      [isDm]="isDm()"
+      (mapChanged)="onMapChanged($event)"
+      (zoomChanged)="onZoomChanged($event)">
+    </app-board-viewer>
+  </main>
+
+  <aside class="chat-area">
+    <app-chat [campaignId]="campaignId()"></app-chat>
+  </aside>
+</div>

@@ -1,0 +1,80 @@
+<div class="board-viewport">
+  <div class="map-container">
+    @if (currentMapUrl()) {
+      <div class="map-transform" [style.transform]="'scale(' + zoom() + ')'">
+        <img [src]="currentMapUrl()" alt="Campaign Scene Map" class="active-map" />
+      </div>
+    } @else {
+      <div class="empty-map">
+        <span>&#128506; Nenhum mapa selecionado no momento</span>
+      </div>
+    }
+  </div>
+  @if (isDm()) {
+    <div class="dm-toolbar">
+      <button class="btn-dm" (click)="openMapSelector()" title="Escolher Mapa">
+        <span class="icon">&#128506;</span> Trocar Mapa
+      </button>
+
+      <div class="zoom-controls">
+        <button class="btn-zoom" (click)="zoomOut()" [disabled]="zoom() <= 0.3" title="Diminuir Zoom">&#8722;</button>
+        <span class="zoom-display" (click)="resetZoom()" title="Clique para resetar">{{ (zoom() * 100).toFixed(0) }}%</span>
+        <button class="btn-zoom" (click)="zoomIn()" [disabled]="zoom() >= 3.0" title="Aumentar Zoom">&#43;</button>
+      </div>
+    </div>
+  }
+
+  @if (isDm() && showMapModal()) {
+    <div class="modal-overlay" (click)="showMapModal.set(false)">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <header class="modal-header">
+          <h4>Biblioteca de Mapas do Mestre</h4>
+          <button class="btn-close" (click)="showMapModal.set(false)">&#10005;</button>
+        </header>
+
+        <div class="modal-body">
+          <label class="section-title">Mapas Cadastrados</label>
+          
+          @if (loadingMaps()) {
+            <div class="loading-state">Carregando mapas...</div>
+          } @else {
+            <div class="maps-grid">
+              @for (map of availableMaps(); track map.id) {
+                <div class="map-card" (click)="selectSavedMap(map)">
+                  <div class="map-preview">
+                    <img [src]="map.mapImage" [alt]="map.name" />
+                  </div>
+                  <div class="map-meta">
+                    <span class="map-name">{{ map.name }}</span>
+                    @if (map.mapGroup) {
+                      <span class="map-group-tag">{{ map.mapGroup.name }}</span>
+                    }
+                  </div>
+                </div>
+              } @empty {
+                <div class="no-maps">Nenhum mapa cadastrado encontrado.</div>
+              }
+            </div>
+          }
+
+          <div class="divider">
+            <span>ou</span>
+          </div>
+
+          <label class="section-title" for="map-url-input">URL externa da imagem</label>
+          <div class="url-input-group">
+            <input
+              id="map-url-input"
+              type="url"
+              [(ngModel)]="newMapInput"
+              placeholder="https://exemplo.com/mapa.jpg"
+            />
+            <button class="btn-apply" (click)="applyCustomUrl()" [disabled]="!newMapInput.trim()">
+              Carregar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

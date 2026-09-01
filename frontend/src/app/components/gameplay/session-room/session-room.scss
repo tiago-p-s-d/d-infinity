@@ -1,0 +1,76 @@
+:host {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.session-room-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background-color: #0d1117;
+
+  .board-area {
+    flex: 1;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .chat-area {
+    height: 100%;
+    display: contents;
+  }
+}:host {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.session-room-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background-color: #0d1117;
+
+  .board-area {
+    flex: 1;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .chat-area {
+    height: 100%;
+    display: contents;
+  }
+}:host {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.session-room-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background-color: #0d1117;
+
+  .board-area {
+    flex: 1;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .chat-area {
+    height: 100%;
+    display: contents;
+  }
+}
