@@ -1,0 +1,285 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.board-viewport {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  background-color: #080a0e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .map-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+
+    .map-transform {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.15s ease-out;
+      transform-origin: center center;
+
+      .active-map {
+        max-width: 90vw;
+        max-height: 90vh;
+        object-fit: contain;
+        box-shadow: 0 0 50px rgba(0, 0, 0, 0.85);
+        user-select: none;
+        pointer-events: none;
+      }
+    }
+
+    .empty-map {
+      color: #484f58;
+      font-size: 1.1rem;
+      display: flex;
+      gap: 0.5rem;
+    }
+  }
+
+  /* Toolbar exclusiva do DM */
+  .dm-toolbar {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    .btn-dm {
+      background-color: #161b22;
+      color: #f0f6fc;
+      border: 1px solid #30363d;
+      padding: 0.55rem 0.95rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+
+      &:hover {
+        background-color: #21262d;
+        border-color: #58a6ff;
+      }
+    }
+
+    .zoom-controls {
+      display: flex;
+      align-items: center;
+      background-color: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      overflow: hidden;
+
+      .btn-zoom {
+        background: transparent;
+        border: none;
+        color: #f0f6fc;
+        padding: 0.5rem 0.75rem;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: bold;
+        transition: background 0.2s;
+
+        &:hover:not(:disabled) {
+          background-color: #21262d;
+          color: #58a6ff;
+        }
+
+        &:disabled {
+          color: #484f58;
+          cursor: not-allowed;
+        }
+      }
+
+      .zoom-display {
+        font-size: 0.78rem;
+        color: #8b949e;
+        padding: 0 0.4rem;
+        min-width: 42px;
+        text-align: center;
+        user-select: none;
+        cursor: pointer;
+
+        &:hover {
+          color: #f0f6fc;
+        }
+      }
+    }
+  }
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+
+  .modal-card {
+    background-color: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 620px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #30363d;
+
+      h4 { margin: 0; color: #f0f6fc; font-size: 1.05rem; }
+      .btn-close {
+        background: transparent;
+        border: none;
+        color: #8b949e;
+        font-size: 1.1rem;
+        cursor: pointer;
+        &:hover { color: #f0f6fc; }
+      }
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+
+      .section-title {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #8b949e;
+        margin-bottom: 0.75rem;
+      }
+
+      .maps-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+
+        .map-card {
+          background-color: #0d1117;
+          border: 1px solid #30363d;
+          border-radius: 8px;
+          overflow: hidden;
+          cursor: pointer;
+          transition: all 0.2s;
+
+          &:hover {
+            border-color: #58a6ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(88, 166, 255, 0.15);
+          }
+
+          .map-preview {
+            width: 100%;
+            height: 90px;
+            background-color: #010409;
+            img { width: 100%; height: 100%; object-fit: cover; }
+          }
+
+          .map-meta {
+            padding: 0.5rem;
+            .map-name {
+              display: block;
+              font-size: 0.8rem;
+              font-weight: 600;
+              color: #f0f6fc;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+            .map-group-tag {
+              display: inline-block;
+              font-size: 0.65rem;
+              color: #58a6ff;
+              margin-top: 0.2rem;
+            }
+          }
+        }
+
+        .no-maps, .loading-state {
+          grid-column: 1 / -1;
+          text-align: center;
+          padding: 2rem;
+          color: #8b949e;
+          font-size: 0.9rem;
+        }
+      }
+
+      .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 1.25rem 0;
+
+        &::before, &::after {
+          content: '';
+          flex: 1;
+          border-bottom: 1px solid #30363d;
+        }
+        span {
+          padding: 0 0.75rem;
+          color: #6e7681;
+          font-size: 0.8rem;
+          text-transform: uppercase;
+        }
+      }
+
+      .url-input-group {
+        display: flex;
+        gap: 0.5rem;
+
+        input {
+          flex: 1;
+          padding: 0.6rem 0.85rem;
+          background-color: #0d1117;
+          border: 1px solid #30363d;
+          border-radius: 6px;
+          color: #f0f6fc;
+          font-size: 0.88rem;
+          &:focus { outline: none; border-color: #58a6ff; }
+        }
+
+        .btn-apply {
+          background-color: #238636;
+          color: #ffffff;
+          border: none;
+          padding: 0 1rem;
+          border-radius: 6px;
+          font-weight: 600;
+          font-size: 0.85rem;
+          cursor: pointer;
+          &:hover:not(:disabled) { background-color: #2ea043; }
+          &:disabled { background-color: #21262d; color: #484f58; cursor: not-allowed; }
+        }
+      }
+    }
+  }
+}

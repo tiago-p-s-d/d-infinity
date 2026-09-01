@@ -15,7 +15,7 @@ import { Currency } from './components/gameplay/currency/currency';
 import { Classes } from './components/gameplay/classes/classes';
 import { JoinCampaign } from './components/gameplay/join-campaign/join-campaign';
 import { ForgotPassword } from './components/auth/forgot-password/forgot-password';
-import { Chat } from './components/gameplay/chat/chat'; 
+import { SessionRoom } from './components/gameplay/session-room/session-room';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -34,7 +34,7 @@ export const routes: Routes = [
   { path: 'dm/character-sheets', component: CharacterSheet, canActivate: [authGuard]},
   { path: 'dm/currency', component: Currency, canActivate: [authGuard]},
   { path: 'dm/classes', component: Classes, canActivate: [authGuard]},
-  { path: 'campaigns/:id/chat', component: Chat, canActivate: [authGuard] },
+  { path: 'campaigns/:id', component: SessionRoom, canActivate: [authGuard] },
 
   
 

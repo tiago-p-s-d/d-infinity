@@ -34,9 +34,9 @@ public class CampaignController : ControllerBase
     public async Task<IActionResult> GetJoinedCampaigns()
     {
         Console.WriteLine("DEBUG: GetJoinedCampaigns called");
-        
+
         var userId = GetUserId();
-        if (userId == null) 
+        if (userId == null)
         {
             Console.WriteLine("DEBUG: User unauthorized");
             return Unauthorized();
@@ -223,6 +223,36 @@ public class CampaignController : ControllerBase
             systemId = campaign.SystemId,
             campaignId = campaign.Id,
             message = "Successfully joined the campaign."
+        });
+    }
+
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetCampaignById(int id)
+    {
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
+
+        var membership = await _context.CampaignMembers
+            .Include(m => m.Campaign)
+                .ThenInclude(c => c.System)
+            .FirstOrDefaultAsync(m => m.CampaignId == id && m.UserId == userId);
+
+        if (membership == null)
+        {
+            return Forbid();
+        }
+
+        return Ok(new
+        {
+            membership.Campaign.Id,
+            membership.Campaign.CampaignName,
+            membership.Campaign.About,
+            membership.IsDm, 
+            System = new
+            {
+                membership.Campaign.System.Id,
+                membership.Campaign.System.Name
+            }
         });
     }
 
