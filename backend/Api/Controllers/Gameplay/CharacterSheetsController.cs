@@ -20,8 +20,41 @@ public class CharacterSheetUpdateDto
 public class CharacterSheetsController(AppDbContext context) : ControllerBase
 {
     private readonly AppDbContext _context = context;
+    [HttpGet]
+    public async Task<IActionResult> GetUserCharacterSheets([FromQuery] int? campaignId = null)
+    {
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
 
-    [HttpGet("{id}")]
+        var query = _context.CharacterSheets
+            .Include(s => s.Model)
+            .Where(s => s.PlayerId == userId.Value);
+
+        if (campaignId.HasValue)
+        {
+            query = query.Where(s => s.CampaignId == campaignId.Value);
+        }
+
+        var sheets = await query
+            .Select(sheet => new
+            {
+                sheet.Id,
+                sheet.CharacterName,
+                sheet.CampaignId,
+                sheet.Values,
+                Model = sheet.Model != null ? new
+                {
+                    sheet.Model.Id,
+                    sheet.Model.Name,
+                    Definitions = JsonSerializer.Deserialize<object>(sheet.Model.Definitions, (JsonSerializerOptions?)null)
+                } : null
+            })
+            .ToListAsync();
+
+        return Ok(sheets);
+    }
+    
+    [HttpGet("{id:int}")]
     public async Task<ActionResult<CharacterSheet>> GetCharacterSheet(int id)
     {
         var characterSheet = await _context.CharacterSheets
@@ -33,10 +66,10 @@ public class CharacterSheetsController(AppDbContext context) : ControllerBase
         if (characterSheet == null)
             return NotFound(new { message = "Character not found." });
 
-        return characterSheet;
+        return Ok(characterSheet);
     }
 
-    [HttpGet("campaign/{campaignId}")]
+    [HttpGet("campaign/{campaignId:int}")]
     public async Task<IActionResult> GetSheetByCampaign(int campaignId)
     {
         var userId = GetUserId();
@@ -54,15 +87,19 @@ public class CharacterSheetsController(AppDbContext context) : ControllerBase
             sheet.CharacterName,
             sheet.CampaignId,
             sheet.Values,
-            Model = new
+            Model = sheet.Model != null ? new
             {
-                sheet.Model!.Id,
+                sheet.Model.Id,
                 sheet.Model.Name,
-                Definitions = JsonSerializer.Deserialize<object>(sheet.Model.Definitions)
-            }
+                Definitions = JsonSerializer.Deserialize<object>(sheet.Model.Definitions, (JsonSerializerOptions?)null)
+            } : null
         });
     }
 
+    /// <summary>
+    /// POST /api/character-sheet
+    /// Criação de nova ficha (RESTful: POST apenas para criar).
+    /// </summary>
     [HttpPost]
     public async Task<ActionResult<CharacterSheet>> PostCharacterSheet(CharacterSheet characterSheet)
     {
@@ -73,11 +110,15 @@ public class CharacterSheetsController(AppDbContext context) : ControllerBase
 
         _context.CharacterSheets.Add(characterSheet);
         await _context.SaveChangesAsync();
-        
+
         return CreatedAtAction(nameof(GetCharacterSheet), new { id = characterSheet.Id }, characterSheet);
     }
 
-    [HttpPut("{id}")]
+    /// <summary>
+    /// PUT /api/character-sheet/{id}
+    /// Atualização de uma ficha existente.
+    /// </summary>
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateSheet(int id, [FromBody] CharacterSheetUpdateDto dto)
     {
         var userId = GetUserId();

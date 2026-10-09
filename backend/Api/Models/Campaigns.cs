@@ -1,13 +1,13 @@
-using System.Collections.Generic;   
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Api.Models.Gameplay; 
+using Api.Models.Gameplay;
 
 namespace Api.Models;
 
 [Table("campaigns")]
 public class Campaign
-{    
+{
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("id")]
@@ -21,7 +21,7 @@ public class Campaign
 
     [Column("system_id")]
     public int SystemId { get; set; }
-    
+
     [ForeignKey("SystemId")]
     public virtual SystemModel System { get; set; } = null!;
 
@@ -29,4 +29,11 @@ public class Campaign
     public string InviteCode { get; set; } = string.Empty;
 
     public virtual ICollection<CampaignUser> CampaignMembers { get; set; } = [];
+    
+    [Column("current_map_id")]
+    public int? CurrentMapId { get; set; }
+
+    [ForeignKey("CurrentMapId")]
+    public virtual MapModel? CurrentMap { get; set; }
+
 }

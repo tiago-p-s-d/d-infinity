@@ -4,6 +4,7 @@ export interface CampaignMap {
   mapImage: string;
   createdBy: number;
   mapGroupId: number;
+  gridCellSize?: number; 
   mapGroup?: {
     id: number;
     name: string;

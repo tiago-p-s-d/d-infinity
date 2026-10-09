@@ -24,6 +24,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<CharacterSheetModel> CharacterSheetModels { get; set; } = null!;
     public DbSet<Race> Races { get; set; } = null!;
     public DbSet<MapModel> Maps { get; set; } = null!;
+    public DbSet<MapTokenModel> MapTokens { get; set; } = null!;
     public DbSet<MapGroup> MapGroups { get; set; } = null!;
     public DbSet<SpellGroup> SpellGroups { get; set; } = null!;
     public DbSet<RaceGroup> RaceGroups { get; set; } = null!;
@@ -42,6 +43,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Currency> Currencies { get; set; } = null!;
     public DbSet<CurrencyValue> CurrencyValues { get; set; } = null!;
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -63,12 +65,28 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<SystemMapGroup>()
             .HasIndex(e => new { e.SystemId, e.MapGroupId }).IsUnique();
 
-
         modelBuilder.Entity<SystemRaceGroup>()
             .HasOne(e => e.System)
             .WithMany(s => s.SystemRaces)
             .HasForeignKey(e => e.SystemId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<MapTokenModel>()
+            .HasOne(t => t.Map)
+            .WithMany(m => m.Tokens)
+            .HasForeignKey(t => t.MapId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<MapTokenModel>()
+            .HasOne(t => t.CharacterSheet)
+            .WithMany()
+            .HasForeignKey(t => t.CharacterSheetId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<MapTokenModel>()
+            .HasOne(t => t.OwnerUser)
+            .WithMany()
+            .HasForeignKey(t => t.OwnerUserId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

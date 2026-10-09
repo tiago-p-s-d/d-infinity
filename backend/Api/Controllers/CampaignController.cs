@@ -1,6 +1,7 @@
 using Api.Data;
 using Api.Models;
 using Api.Models.Gameplay;
+using Api.DTOs.Gameplay;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
@@ -26,21 +27,14 @@ public class CampaignController : ControllerBase
     public CampaignController(AppDbContext context)
     {
         _context = context;
-        // This will show in your terminal when the controller is instantiated
         Console.WriteLine("DEBUG: CampaignController initialized");
     }
 
-    [HttpGet("my-joined-campaigns")] // Changed route name to avoid ANY conflict
+    [HttpGet("my-joined-campaigns")]
     public async Task<IActionResult> GetJoinedCampaigns()
     {
-        Console.WriteLine("DEBUG: GetJoinedCampaigns called");
-
         var userId = GetUserId();
-        if (userId == null)
-        {
-            Console.WriteLine("DEBUG: User unauthorized");
-            return Unauthorized();
-        }
+        if (userId == null) return Unauthorized();
 
         var campaigns = await _context.CampaignMembers
             .Where(m => m.UserId == userId && !m.IsDm)
@@ -56,14 +50,12 @@ public class CampaignController : ControllerBase
             })
             .ToListAsync();
 
-        Console.WriteLine($"DEBUG: Found {campaigns.Count} campaigns");
         return Ok(campaigns);
     }
 
     [HttpGet]
     public async Task<IActionResult> GetCampaigns()
     {
-        Console.WriteLine("DEBUG: GetCampaigns (DM) called");
         var userId = GetUserId();
         if (userId == null) return Unauthorized();
 
@@ -116,7 +108,7 @@ public class CampaignController : ControllerBase
         return Ok(campaign);
     }
 
-    [HttpPut("update/{id:int}")] // Explicit path
+    [HttpPut("update/{id:int}")]
     public async Task<IActionResult> UpdateCampaign(int id, [FromBody] CampaignCreateDto dto)
     {
         var userId = GetUserId();
@@ -136,7 +128,7 @@ public class CampaignController : ControllerBase
         return Ok(membership.Campaign);
     }
 
-    [HttpDelete("delete/{id:int}")] // Explicit path
+    [HttpDelete("delete/{id:int}")]
     public async Task<IActionResult> DeleteCampaign(int id)
     {
         var userId = GetUserId();
@@ -242,18 +234,97 @@ public class CampaignController : ControllerBase
             return Forbid();
         }
 
+        // Traz as informações do mapa ativo da campanha
+        var campaign = await _context.Campaigns
+            .Include(c => c.CurrentMap)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
         return Ok(new
         {
             membership.Campaign.Id,
             membership.Campaign.CampaignName,
             membership.Campaign.About,
-            membership.IsDm, 
+            membership.IsDm,
+            CurrentMap = campaign?.CurrentMap != null ? new
+            {
+                campaign.CurrentMap.Id,
+                campaign.CurrentMap.Name,
+                campaign.CurrentMap.MapImage,
+                campaign.CurrentMap.GridCellSize
+            } : null,
             System = new
             {
                 membership.Campaign.System.Id,
                 membership.Campaign.System.Name
             }
         });
+    }
+
+    [HttpPut("{campaignId:int}/set-active-map/{mapId:int}")]
+    public async Task<IActionResult> SetActiveMap(int campaignId, int mapId)
+    {
+        Console.WriteLine($"DEBUG: SetActiveMap called for Campaign {campaignId} and Map {mapId}");
+
+        var userId = GetUserId();
+        if (userId == null)
+        {
+            Console.WriteLine("DEBUG: SetActiveMap - Unauthorized");
+            return Unauthorized();
+        }
+
+        var isDm = await _context.CampaignMembers
+            .AnyAsync(m => m.CampaignId == campaignId && m.UserId == userId && m.IsDm);
+
+        if (!isDm)
+        {
+            Console.WriteLine("DEBUG: SetActiveMap - User is not DM");
+            return Forbid();
+        }
+
+        var campaign = await _context.Campaigns.FindAsync(campaignId);
+        if (campaign == null)
+        {
+            Console.WriteLine($"DEBUG: SetActiveMap - Campaign {campaignId} not found in database");
+            return NotFound(new { message = $"Campaign {campaignId} not found." });
+        }
+
+        // Atualiza a coluna no banco
+        campaign.CurrentMapId = mapId;
+        await _context.SaveChangesAsync();
+
+        Console.WriteLine($"DEBUG: SetActiveMap - Successfully saved Map {mapId} to Campaign {campaignId}");
+        return Ok(new { message = "Active map updated successfully.", campaignId, mapId });
+    }
+    [HttpPost("{id:int}/end-session")]
+    public async Task<IActionResult> EndSession(int id, [FromBody] EndSessionRequestDto request)
+    {
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
+
+        var isDm = await _context.CampaignMembers
+            .AnyAsync(m => m.CampaignId == id && m.UserId == userId && m.IsDm);
+
+        if (!isDm) return Forbid();
+
+        var tokenIds = request.Tokens.Select(t => t.TokenId).ToList();
+        var tokensFromDb = await _context.MapTokens
+            .Where(t => t.MapId == request.MapId && tokenIds.Contains(t.Id))
+            .ToListAsync();
+
+        var positionsMap = request.Tokens.ToDictionary(t => t.TokenId);
+
+        foreach (var token in tokensFromDb)
+        {
+            if (positionsMap.TryGetValue(token.Id, out var newPos))
+            {
+                token.CoordX = newPos.CoordX;
+                token.CoordY = newPos.CoordY;
+            }
+        }
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Session ended and token positions saved successfully." });
     }
 
     private int? GetUserId()

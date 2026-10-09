@@ -1,12 +1,20 @@
 <div class="session-room-container">
   <main class="board-area">
     <app-board-viewer
+      [campaignId]="campaignId()"
       [currentMapUrl]="currentMapUrl()"
+      [currentMapId]="currentMapId()"
+      [currentUserId]="currentUserId()"
+      [currentCharacterSheetId]="currentCharacterSheetId()"
       [zoom]="currentZoom()"
+      [gridCellSize]="currentGridCellSize()"
       [isDm]="isDm()"
       (mapChanged)="onMapChanged($event)"
-      (zoomChanged)="onZoomChanged($event)">
-    </app-board-viewer>
+      (mapSelected)="onMapSelected($event)"
+      (zoomChanged)="onZoomChanged($event)"
+      (gridCellSizeChanged)="onGridCellSizeChanged($event)"
+      (tokenMovedSignalR)="onTokenMoved($event)"
+    />
   </main>
 
   <aside class="chat-area">

@@ -2,41 +2,91 @@
   <div class="map-container">
     @if (currentMapUrl()) {
       <div class="map-transform" [style.transform]="'scale(' + zoom() + ')'">
-        <img [src]="currentMapUrl()" alt="Campaign Scene Map" class="active-map" />
+        <img [src]="currentMapUrl()" alt="Campaign Scene Map" class="active-map" #mapImg />
+
+        <!-- High-Contrast SVG Grid Overlay bound to activeGridCellSize -->
+        <svg class="grid-overlay">
+          <defs>
+            <pattern
+              id="dynamic-grid-pattern"
+              [attr.width]="activeGridCellSize()"
+              [attr.height]="activeGridCellSize()"
+              patternUnits="userSpaceOnUse"
+            >
+              <path
+                [attr.d]="'M ' + activeGridCellSize() + ' 0 L 0 0 0 ' + activeGridCellSize()"
+                fill="none"
+                stroke="rgba(0, 0, 0, 0.75)"
+                stroke-width="1.8"
+              />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#dynamic-grid-pattern)" />
+        </svg>
+
+        <!-- Dynamic Game Objects Overlay bound to activeGridCellSize -->
+        <app-game-objects
+          [tokens]="tokenService.tokens()"
+          [currentUserId]="currentUserId()"
+          [isDm]="isDm()"
+          [cellSize]="activeGridCellSize()"
+          [zoom]="zoom()"
+          (tokenMoved)="onTokenMoved($event)"
+        />
       </div>
     } @else {
       <div class="empty-map">
-        <span>&#128506; Nenhum mapa selecionado no momento</span>
+        <span>&#128506; No map currently selected</span>
       </div>
     }
   </div>
-  @if (isDm()) {
-    <div class="dm-toolbar">
-      <button class="btn-dm" (click)="openMapSelector()" title="Escolher Mapa">
-        <span class="icon">&#128506;</span> Trocar Mapa
+
+  <!-- Player and DM Actions Toolbar -->
+  <div class="board-actions">
+    @if (canCreateToken()) {
+      <button class="btn-primary-sm" (click)="showTokenModal.set(true)" title="Add your character token">
+        &#43; Add Token
       </button>
+    }
 
-      <div class="zoom-controls">
-        <button class="btn-zoom" (click)="zoomOut()" [disabled]="zoom() <= 0.3" title="Diminuir Zoom">&#8722;</button>
-        <span class="zoom-display" (click)="resetZoom()" title="Clique para resetar">{{ (zoom() * 100).toFixed(0) }}%</span>
-        <button class="btn-zoom" (click)="zoomIn()" [disabled]="zoom() >= 3.0" title="Aumentar Zoom">&#43;</button>
+    @if (isDm()) {
+      <div class="dm-toolbar">
+        <button class="btn-dm" (click)="openMapSelector()" title="Choose Map">
+          <span class="icon">&#128506;</span> Change Map
+        </button>
+
+        <!-- DM Grid Resolution Controls displaying activeGridCellSize -->
+        <div class="grid-controls" title="Adjust Grid Density">
+          <span class="control-label">&#9638; Grid:</span>
+          <button class="btn-tool" (click)="decreaseGridSize()" title="Decrease Cell Size (More cells)">&#8722;</button>
+          <span class="grid-display">{{ activeGridCellSize() }}px</span>
+          <button class="btn-tool" (click)="increaseGridSize()" title="Increase Cell Size (Fewer cells)">&#43;</button>
+        </div>
+
+        <!-- Zoom Controls -->
+        <div class="zoom-controls">
+          <button class="btn-zoom" (click)="zoomOut()" [disabled]="zoom() <= 0.3" title="Zoom Out">&#8722;</button>
+          <span class="zoom-display" (click)="resetZoom()" title="Click to reset">{{ (zoom() * 100).toFixed(0) }}%</span>
+          <button class="btn-zoom" (click)="zoomIn()" [disabled]="zoom() >= 3.0" title="Zoom In">&#43;</button>
+        </div>
       </div>
-    </div>
-  }
+    }
+  </div>
 
+  <!-- Map Selection Modal -->
   @if (isDm() && showMapModal()) {
     <div class="modal-overlay" (click)="showMapModal.set(false)">
       <div class="modal-card" (click)="$event.stopPropagation()">
         <header class="modal-header">
-          <h4>Biblioteca de Mapas do Mestre</h4>
+          <h4>DM's Map Library</h4>
           <button class="btn-close" (click)="showMapModal.set(false)">&#10005;</button>
         </header>
 
         <div class="modal-body">
-          <label class="section-title">Mapas Cadastrados</label>
-          
+          <label class="section-title">Saved Maps</label>
+
           @if (loadingMaps()) {
-            <div class="loading-state">Carregando mapas...</div>
+            <div class="loading-state">Loading maps...</div>
           } @else {
             <div class="maps-grid">
               @for (map of availableMaps(); track map.id) {
@@ -52,25 +102,70 @@
                   </div>
                 </div>
               } @empty {
-                <div class="no-maps">Nenhum mapa cadastrado encontrado.</div>
+                <div class="no-maps">No saved maps found.</div>
               }
             </div>
           }
 
           <div class="divider">
-            <span>ou</span>
+            <span>or</span>
           </div>
 
-          <label class="section-title" for="map-url-input">URL externa da imagem</label>
+          <label class="section-title" for="map-url-input">External Image URL</label>
           <div class="url-input-group">
             <input
               id="map-url-input"
               type="url"
               [(ngModel)]="newMapInput"
-              placeholder="https://exemplo.com/mapa.jpg"
+              placeholder="https://example.com/map.jpg"
             />
             <button class="btn-apply" (click)="applyCustomUrl()" [disabled]="!newMapInput.trim()">
-              Carregar
+              Load
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Add Token Modal -->
+  @if (showTokenModal()) {
+    <div class="modal-overlay" (click)="showTokenModal.set(false)">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <header class="modal-header">
+          <h4>Add Token to Board</h4>
+          <button class="btn-close" (click)="showTokenModal.set(false)">&#10005;</button>
+        </header>
+
+        <div class="modal-body">
+          <div class="full-field">
+            <label for="token-name">Token Name</label>
+            <input
+              id="token-name"
+              type="text"
+              [(ngModel)]="newTokenName"
+              placeholder="Character or monster name"
+            />
+          </div>
+
+          <div class="full-field">
+            <label for="token-file">Token Image (File Upload)</label>
+            <input
+              id="token-file"
+              type="file"
+              accept="image/*"
+              (change)="onFileSelected($event)"
+            />
+          </div>
+
+          <div class="form-actions">
+            <button class="btn-secondary" (click)="showTokenModal.set(false)">Cancel</button>
+            <button
+              class="btn-primary"
+              (click)="createToken()"
+              [disabled]="!newTokenName.trim() || !newTokenImage.trim()"
+            >
+              Place Token
             </button>
           </div>
         </div>
