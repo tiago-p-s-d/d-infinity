@@ -1,13 +1,16 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import * as signalR from '@microsoft/signalr';
 import { ChatMessage } from '../../../interfaces/chat-message';
+import { MapTokenService } from '../token/map-token-service';
 
 export interface MapState {
   campaignId: number;
+  mapId: number; 
   mapUrl: string;
   zoom: number;
+  gridCellSize?: number; 
 }
 
 @Injectable({
@@ -17,10 +20,12 @@ export class ChatService {
   private apiUrl = 'http://localhost:5000/api/campaigns';
   private hubUrl = 'http://localhost:5000/hubs/chat';
 
+  private mapTokenService = inject(MapTokenService);
+
   private hubConnection: signalR.HubConnection | null = null;
   public messages = signal<ChatMessage[]>([]);
   public isConnected = signal<boolean>(false);
-  public mapState = signal<MapState>({ campaignId: 0, mapUrl: '', zoom: 1.0 });
+  public mapState = signal<MapState>({ campaignId: 0, mapId: 0, mapUrl: '', zoom: 1.0, gridCellSize: 70 }); 
 
   constructor(private http: HttpClient) {}
 
@@ -34,15 +39,25 @@ export class ChatService {
     return this.http.post<ChatMessage>(`${this.apiUrl}/${campaignId}/chat`, { content });
   }
 
-  public updateMapState(campaignId: number, mapUrl: string, zoom: number): void {
-    // 1. Atualização otimista imediata na tela do DM
-    this.mapState.set({ campaignId, mapUrl, zoom });
+  public updateMapState(campaignId: number, mapId: number, mapUrl: string, zoom: number, gridCellSize: number = 70): void { 
+    const safeMapId = Math.round(mapId || 0); 
+    const safeGridSize = Math.round(gridCellSize || 70); 
+    const safeZoom = Number(zoom || 1.0); 
 
-    // 2. Disparo via WebSocket para sincronizar os outros jogadores
+    this.mapState.set({ campaignId, mapId: safeMapId, mapUrl, zoom: safeZoom, gridCellSize: safeGridSize }); 
+
     if (this.hubConnection && this.hubConnection.state === signalR.HubConnectionState.Connected) {
       this.hubConnection
-        .invoke('UpdateMapState', campaignId, mapUrl, zoom)
-        .catch((err) => console.error('Erro ao emitir estado do mapa via SignalR:', err));
+        .invoke('UpdateMapState', campaignId, safeMapId, mapUrl, safeZoom, safeGridSize) 
+        .catch((err) => console.error('Error emitting map state via SignalR:', err));
+    }
+  }
+
+  public moveToken(campaignId: number, payload: { tokenId: number; coordX: number; coordY: number }): void {
+    if (this.hubConnection && this.hubConnection.state === signalR.HubConnectionState.Connected) {
+      this.hubConnection
+        .invoke('MoveToken', campaignId, payload)
+        .catch((err) => console.error('Error invoking MoveToken on SignalR Hub:', err));
     }
   }
 
@@ -50,7 +65,7 @@ export class ChatService {
     if (
       this.hubConnection &&
       (this.hubConnection.state === signalR.HubConnectionState.Connected ||
-       this.hubConnection.state === signalR.HubConnectionState.Connecting)
+        this.hubConnection.state === signalR.HubConnectionState.Connecting)
     ) {
       return;
     }
@@ -69,8 +84,15 @@ export class ChatService {
     });
 
     this.hubConnection.on('ReceiveMapState', (state: MapState) => {
-      this.mapState.set(state);
+      this.mapState.set(state); 
     });
+
+    this.hubConnection.on(
+      'ReceiveTokenMoved',
+      (data: { tokenId: number; coordX: number; coordY: number; movedByUserId: number }) => {
+        this.mapTokenService.updateTokenPositionInMemory(data.tokenId, data.coordX, data.coordY);
+      }
+    );
 
     this.hubConnection.onreconnected(() => {
       this.isConnected.set(true);

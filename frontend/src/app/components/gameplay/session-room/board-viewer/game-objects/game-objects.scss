@@ -1,0 +1,104 @@
+$primary-blue: #007bff;
+$dm-gold: #ffc107;
+
+:host {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.tokens-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+
+  .token-item {
+    position: absolute;
+    box-sizing: border-box;
+    aspect-ratio: 1 / 1; // Strict 1:1 proportion ensures circular shape
+    border-radius: 50%;
+    cursor: default;
+    user-select: none;
+    pointer-events: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+    border: 2px solid #ffffff;
+    transition: transform 0.1s ease-out, border-color 0.2s ease;
+
+    img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+      pointer-events: none;
+      flex-shrink: 0;
+    }
+
+    &.draggable {
+      cursor: grab;
+      border-color: $primary-blue;
+
+      &:active {
+        cursor: grabbing;
+        transform: scale(1.05);
+      }
+    }
+
+    &.dm-editable {
+      border-color: $dm-gold;
+    }
+
+    .token-tag {
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(18, 18, 18, 0.9);
+      border: 1px solid #333333;
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #ffffff;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    // DM Quick Action Button
+    .dm-quick-scale {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: $dm-gold;
+      color: #000000;
+      border: 1px solid #000000;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+      z-index: 3;
+      pointer-events: auto;
+
+      &:hover {
+        transform: scale(1.15);
+      }
+    }
+  }
+}

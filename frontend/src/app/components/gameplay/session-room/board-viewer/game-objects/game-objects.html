@@ -1,0 +1,20 @@
+<div class="tokens-layer">
+  @for (token of tokens(); track token.id) {
+    <div
+      class="token-item"
+      [class.draggable]="canMove(token)"
+      [class.dm-editable]="isDm()"
+      [style.left.px]="token.coordX"
+      [style.top.px]="token.coordY"
+      [style.width.px]="(token.size || 1) * cellSize()"
+      [style.height.px]="(token.size || 1) * cellSize()"
+      (mousedown)="onMouseDown($event, token)"
+      [title]="token.name"
+    >
+      <img [src]="token.tokenImage" [alt]="token.name" draggable="false" />
+      <span class="token-tag">{{ token.name }}</span>
+
+      
+    </div>
+  }
+</div>

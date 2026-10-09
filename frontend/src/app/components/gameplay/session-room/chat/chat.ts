@@ -73,7 +73,7 @@ export class Chat implements OnInit, OnDestroy {
 
     this.messageContent = '';
     this.chatService.sendMessage(this.campaignId, content).subscribe({
-      error: (err) => console.error('Erro ao enviar mensagem:', err)
+      error: (err) => console.error('Error sending message:', err)
     });
   }
 
